@@ -123,8 +123,16 @@ export default function BattleGame({ level, onBack }) {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
-      <div className="back-row">
-        <button className="btn btn-ghost btn-sm" onClick={onBack}>Back</button>
+      {/* Back button pinned to top-left corner */}
+      <button
+        className="btn btn-ghost btn-sm"
+        onClick={onBack}
+        style={{ position: 'fixed', top: 12, left: 12, zIndex: 100 }}
+      >
+        Back
+      </button>
+
+      <div className="back-row" style={{ justifyContent: 'center' }}>
         <span style={{ color: 'var(--text-dim)', fontSize: '0.72rem', fontWeight: 700, letterSpacing: 2, textTransform: 'uppercase' }}>
           Battle — Level {level}
         </span>

@@ -24,7 +24,7 @@ export default function App() {
     return (
       <MenuScreen
         onSinglePlayerPC={() => setScreen('single-select')}
-        onSinglePlayerMobile={() => setScreen('mobile-single')}
+        onSinglePlayerMobile={() => setScreen('mobile-single-select')}
         onBattlePC={() => setScreen('battle-select')}
         onBattleMobile={() => setScreen('mobile-lobby')}
         onTutorial={() => setScreen('tutorial')}
@@ -61,6 +61,16 @@ export default function App() {
 
   if (screen === 'single') {
     return <SinglePlayerGame onBack={goMenu} />;
+  }
+
+  if (screen === 'mobile-single-select') {
+    return (
+      <LevelSelect
+        mode="single"
+        onBack={goMenu}
+        onStart={() => setScreen('mobile-single')}
+      />
+    );
   }
 
   if (screen === 'mobile-single') {

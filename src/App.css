@@ -987,6 +987,39 @@ kbd {
   background: #d97706;
 }
 
+/* ===== STREAK OVERLAY ===== */
+.streak-overlay {
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(15, 23, 42, 0.88);
+  border: 1.5px solid var(--accent);
+  border-radius: 6px;
+  padding: 3px 10px;
+  font-size: calc(var(--cell-size) * 0.26);
+  font-weight: 900;
+  color: var(--accent);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 5;
+  animation: fadeIn 0.15s ease;
+}
+
+.streak-overlay.streak-milestone {
+  border-color: var(--danger);
+  color: var(--danger);
+  animation: streakPop 0.3s ease;
+}
+
+@keyframes streakPop {
+  0%   { transform: translateX(-50%) scale(1); }
+  40%  { transform: translateX(-50%) scale(1.18); }
+  100% { transform: translateX(-50%) scale(1); }
+}
+
 /* ===== PC-ONLY BLOCK (mobile warning) ===== */
 .mobile-pc-block {
   display: flex;

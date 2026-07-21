@@ -212,6 +212,8 @@ export function createInitialState(startLevel) {
     mergeFlash: 0,
     pendingIncoming: 0,
     pendingIncomingPool: [2],
+    mergeStreak: 0,       // consecutive piece placements that produced a merge
+    streakMilestone: 0,   // bumped each time streak hits a multiple of 4 (for flash)
   };
 }
 
@@ -287,6 +289,7 @@ function lockPiece(state) {
   const {
     currentPiece, board, score, level, startLevel,
     totalGarbageSent, pendingIncoming, pendingIncomingPool,
+    mergeStreak = 0, streakMilestone = 0,
   } = state;
 
   // Place piece on board
@@ -298,8 +301,14 @@ function lockPiece(state) {
   // Process merges + cascades
   const { board: mergedBoard, score: mergeScore, chainCount } = processMerges(newBoard);
 
-  // Garbage: 1 row per 3 combos
-  const garbageToSend = Math.floor(chainCount / 3);
+  // Consecutive-merge streak: increments when this piece caused a merge, resets otherwise
+  const newStreak = mergeScore > 0 ? mergeStreak + 1 : 0;
+  // Every 4 consecutive merging placements = +1 garbage
+  const streakBonus = (newStreak > 0 && newStreak % 4 === 0) ? 1 : 0;
+  const newStreakMilestone = streakMilestone + (streakBonus > 0 ? 1 : 0);
+
+  // Garbage: 1 row per 3 chain-combos + streak bonus
+  const garbageToSend = Math.floor(chainCount / 3) + streakBonus;
   const newTotalGarbage = totalGarbageSent + garbageToSend;
   const newScore = score + mergeScore;
 
@@ -333,6 +342,8 @@ function lockPiece(state) {
       pendingIncoming: 0,
       pendingIncomingPool: [2],
       mergeFlash: mergeScore > 0 ? (state.mergeFlash + 1) : state.mergeFlash,
+      mergeStreak: 0,
+      streakMilestone: newStreakMilestone,
     };
   }
 
@@ -348,5 +359,7 @@ function lockPiece(state) {
     pendingIncoming: 0,
     pendingIncomingPool: [2],
     mergeFlash: mergeScore > 0 ? (state.mergeFlash + 1) : state.mergeFlash,
+    mergeStreak: newStreak,
+    streakMilestone: newStreakMilestone,
   };
 }
