@@ -875,6 +875,9 @@ kbd {
   width: 100%;
   height: 100svh;
   padding: 6px;
+  /* Override cell size: sized for a single board on mobile.
+     230px budget for header + dpad + banner; 105px for info panel + gaps */
+  --cell-size: min(44px, calc((100svh - 230px) / 15), calc((100svw - 105px) / 6));
 }
 
 .mobile-battle-header {

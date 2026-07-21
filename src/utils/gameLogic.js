@@ -54,24 +54,6 @@ function bfsGroup(board, startRow, startCol, visited) {
   return group;
 }
 
-// After merges+gravity, clear garbage rows whose gap tile was consumed.
-// A "dead" garbage row has at least one -1 but zero positive values.
-function clearDeadGarbageRows(board) {
-  let cleared = false;
-  const next = board.map(r => [...r]);
-  for (let r = 0; r < ROWS; r++) {
-    const hasGarbage = next[r].some(v => v === -1);
-    const hasPositive = next[r].some(v => v > 0);
-    if (hasGarbage && !hasPositive) {
-      for (let c = 0; c < COLS; c++) {
-        if (next[r][c] === -1) next[r][c] = 0;
-      }
-      cleared = true;
-    }
-  }
-  return { board: cleared ? applyGravity(next) : next, cleared };
-}
-
 // Process all merges (with cascades). Returns { board, score, chainCount }.
 export function processMerges(board) {
   let current = board.map(r => [...r]);
@@ -96,45 +78,48 @@ export function processMerges(board) {
       }
     }
 
-    if (groups.length > 0) {
-      anyMerge = true;
-      chainCount += groups.length;
+    if (groups.length === 0) break;
 
-      const next = current.map(r => [...r]);
+    anyMerge = true;
+    chainCount += groups.length;
 
-      for (const group of groups) {
-        const value = current[group[0][0]][group[0][1]];
-        const newValue = value * Math.pow(2, group.length - 1);
+    const next = current.map(r => [...r]);
 
-        // Find lowest row in group
-        let maxRow = -1;
-        for (const [r] of group) {
-          if (r > maxRow) maxRow = r;
+    for (const group of groups) {
+      const value = current[group[0][0]][group[0][1]];
+      const newValue = value * Math.pow(2, group.length - 1);
+
+      // If the gap tile (a positive value inside a garbage row) is part of this
+      // group, erase all -1 cells in that row immediately — the row is gone.
+      for (const [gr] of group) {
+        if (next[gr].some(v => v === -1)) {
+          for (let col = 0; col < COLS; col++) {
+            if (next[gr][col] === -1) next[gr][col] = 0;
+          }
         }
-        // Among bottom cells, pick the middle one
-        const bottomCells = group.filter(([r]) => r === maxRow);
-        bottomCells.sort((a, b) => a[1] - b[1]);
-        const targetCell = bottomCells[Math.floor(bottomCells.length / 2)];
-
-        // Clear all cells in group
-        for (const [gr, gc] of group) {
-          next[gr][gc] = 0;
-        }
-
-        // Place merged tile
-        next[targetCell[0]][targetCell[1]] = newValue;
-        totalScore += newValue;
       }
 
-      current = applyGravity(next);
+      // Find lowest row in group
+      let maxRow = -1;
+      for (const [r] of group) {
+        if (r > maxRow) maxRow = r;
+      }
+      // Among bottom cells, pick the middle one
+      const bottomCells = group.filter(([r]) => r === maxRow);
+      bottomCells.sort((a, b) => a[1] - b[1]);
+      const targetCell = bottomCells[Math.floor(bottomCells.length / 2)];
+
+      // Clear all cells in group
+      for (const [gr, gc] of group) {
+        next[gr][gc] = 0;
+      }
+
+      // Place merged tile
+      next[targetCell[0]][targetCell[1]] = newValue;
+      totalScore += newValue;
     }
 
-    // After each cascade step, clear garbage rows whose gap tile was consumed
-    const { board: cleaned, cleared } = clearDeadGarbageRows(current);
-    if (cleared) {
-      current = cleaned;
-      anyMerge = true; // re-check for new merges after gravity
-    }
+    current = applyGravity(next);
   }
 
   return { board: current, score: totalScore, chainCount };
