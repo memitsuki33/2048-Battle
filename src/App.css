@@ -731,7 +731,291 @@ kbd {
   color: #fff;
 }
 
-/* ===== WIN BANNER ===== */
+/* ===== MOBILE BUTTON ===== */
+.btn-mobile {
+  background: #16a34a;
+  color: #fff;
+  box-shadow: 0 4px 0 #15803d;
+}
+
+/* ===== MOBILE LOBBY ===== */
+.mobile-lobby {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  width: min(380px, 96vw);
+  animation: fadeIn 0.3s ease;
+}
+
+.lobby-title {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-dim);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.lobby-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.lobby-level-row {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.lobby-divider {
+  width: 100%;
+  border-top: 1px solid var(--border);
+}
+
+.lobby-section {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.lobby-wide-btn {
+  width: 100%;
+}
+
+.lobby-or {
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.lobby-join-row {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+}
+
+.lobby-code-input {
+  flex: 1;
+  background: var(--panel-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 1.3rem;
+  font-weight: 900;
+  letter-spacing: 6px;
+  text-transform: uppercase;
+  text-align: center;
+  padding: 10px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.lobby-code-input:focus {
+  border-color: var(--accent2);
+}
+
+.lobby-error {
+  color: var(--danger);
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.lobby-waiting {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.lobby-code-display {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  background: var(--panel-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px 32px;
+}
+
+.lobby-code-big {
+  font-size: 3rem;
+  font-weight: 900;
+  letter-spacing: 10px;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+
+.lobby-spinner {
+  width: 28px;
+  height: 28px;
+  border: 3px solid var(--border);
+  border-top-color: var(--accent2);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ===== MOBILE BATTLE ===== */
+.mobile-battle {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  height: 100svh;
+  padding: 6px;
+}
+
+.mobile-battle-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  justify-content: space-between;
+}
+
+.mobile-battle-title {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.mobile-opp-status {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.mobile-opp-label {
+  font-size: 0.56rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.mobile-opp-score {
+  font-size: 0.9rem;
+  font-weight: 900;
+  color: var(--text);
+}
+
+.mobile-opp-score.red { color: var(--danger); }
+
+.mobile-game-area {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  flex: 1;
+}
+
+.mobile-restart-btn {
+  width: 200px;
+}
+
+/* ===== D-PAD ===== */
+.dpad {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  user-select: none;
+  padding: 6px 0 8px;
+}
+
+.dpad-row {
+  display: flex;
+  gap: 4px;
+  justify-content: center;
+}
+
+.dpad-spacer {
+  width: 60px;
+  height: 60px;
+}
+
+.dpad-btn {
+  width: 60px;
+  height: 60px;
+  border: none;
+  border-radius: 10px;
+  background: var(--panel-bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-size: 1.2rem;
+  font-weight: 900;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.08s, transform 0.08s;
+  box-shadow: 0 3px 0 #0f172a;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.dpad-btn:active {
+  background: var(--card-bg);
+  transform: translateY(2px);
+  box-shadow: none;
+}
+
+.dpad-up {
+  background: var(--accent);
+  color: #111;
+  font-size: 0.7rem;
+  border-color: #b45309;
+  box-shadow: 0 3px 0 #b45309;
+}
+
+.dpad-up:active {
+  background: #d97706;
+}
+
+/* ===== PC-ONLY BLOCK (mobile warning) ===== */
+.mobile-pc-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  text-align: center;
+  max-width: 320px;
+  animation: fadeIn 0.3s ease;
+}
+
+.mobile-pc-icon {
+  font-size: 3rem;
+}
+
+.mobile-pc-title {
+  font-size: 1.4rem;
+  font-weight: 900;
+  color: var(--text);
+}
+
+.mobile-pc-msg {
+  font-size: 0.88rem;
+  color: var(--text-dim);
+  line-height: 1.65;
+}
+
+.mobile-pc-msg strong {
+  color: #16a34a;
+}
+
+/* ===== WIN BANNER variants ===== */
 .win-banner {
   background: var(--panel-bg);
   border: 2px solid var(--accent);

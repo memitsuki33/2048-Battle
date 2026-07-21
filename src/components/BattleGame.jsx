@@ -3,7 +3,27 @@ import { useGameEngine } from '../hooks/useGameEngine.js';
 import GameBoard from './GameBoard.jsx';
 import InfoPanel from './InfoPanel.jsx';
 
+function isMobile() {
+  return (
+    typeof window !== 'undefined' &&
+    (navigator.maxTouchPoints > 0 || window.innerWidth < 768)
+  );
+}
+
 export default function BattleGame({ level, onBack }) {
+  if (isMobile()) {
+    return (
+      <div className="mobile-pc-block">
+        <div className="mobile-pc-icon">🎮</div>
+        <div className="mobile-pc-title">PC Only</div>
+        <div className="mobile-pc-msg">
+          Battle (PC) requires a keyboard with two players on the same screen.
+          Use <strong>Battle (Mobile)</strong> to play on your phone.
+        </div>
+        <button className="btn btn-ghost" onClick={onBack}>Back to Menu</button>
+      </div>
+    );
+  }
   const p1 = useGameEngine({ startLevel: level, mode: 'battle' });
   const p2 = useGameEngine({ startLevel: level, mode: 'battle' });
 
