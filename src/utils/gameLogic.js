@@ -33,9 +33,18 @@ export function applyGravity(board) {
   return result;
 }
 
+// Returns true if a row contains any garbage cell (-1).
+function isGarbageRow(board, row) {
+  for (let c = 0; c < COLS; c++) {
+    if (board[row][c] === -1) return true;
+  }
+  return false;
+}
+
 function bfsGroup(board, startRow, startCol, visited) {
   const value = board[startRow][startCol];
-  if (value <= 0) return []; // empty or garbage
+  if (value <= 0) return []; // empty or garbage cell
+  if (isGarbageRow(board, startRow)) return []; // never merge tiles inside a garbage row
 
   const group = [];
   const queue = [[startRow, startCol]];
@@ -46,6 +55,8 @@ function bfsGroup(board, startRow, startCol, visited) {
     if (visited.has(key)) continue;
     if (r < 0 || r >= ROWS || c < 0 || c >= COLS) continue;
     if (board[r][c] !== value) continue;
+    // Mark visited even if we skip (garbage row), so we don't re-process
+    if (isGarbageRow(board, r)) { visited.add(key); continue; }
     visited.add(key);
     group.push([r, c]);
     queue.push([r - 1, c], [r + 1, c], [r, c - 1], [r, c + 1]);
@@ -266,6 +277,10 @@ export function gameReducer(state, action) {
         pendingIncoming: state.pendingIncoming + action.rows,
         pendingIncomingPool: action.garbagePool ?? [2],
       };
+    }
+
+    case 'FORCE_GAMEOVER': {
+      return { ...state, gameOver: true };
     }
 
     default:

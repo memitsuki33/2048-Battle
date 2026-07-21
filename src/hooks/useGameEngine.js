@@ -47,12 +47,13 @@ export function useGameEngine({ startLevel, mode = 'single' }) {
     }
   }, [state.score, state.level, mode]);
 
-  const moveLeft  = useCallback(() => dispatch({ type: 'MOVE_LEFT' }), []);
-  const moveRight = useCallback(() => dispatch({ type: 'MOVE_RIGHT' }), []);
-  const softDrop  = useCallback(() => dispatch({ type: 'SOFT_DROP' }), []);
-  const hardDrop  = useCallback(() => dispatch({ type: 'HARD_DROP' }), []);
-  const restart   = useCallback((level) => dispatch({ type: 'RESTART', level: level ?? startLevel }), [startLevel]);
-  const addIncomingGarbage = useCallback((rows, garbagePool) => dispatch({ type: 'ADD_INCOMING_GARBAGE', rows, garbagePool }), []);
+  const moveLeft       = useCallback(() => dispatch({ type: 'MOVE_LEFT' }), []);
+  const moveRight      = useCallback(() => dispatch({ type: 'MOVE_RIGHT' }), []);
+  const softDrop       = useCallback(() => dispatch({ type: 'SOFT_DROP' }), []);
+  const hardDrop       = useCallback(() => dispatch({ type: 'HARD_DROP' }), []);
+  const restart        = useCallback((level) => dispatch({ type: 'RESTART', level: level ?? startLevel }), [startLevel]);
+  const addIncomingGarbage = useCallback((rows) => dispatch({ type: 'ADD_INCOMING_GARBAGE', rows }), []);
+  const forceGameOver  = useCallback(() => dispatch({ type: 'FORCE_GAMEOVER' }), []);
 
   return {
     state,
@@ -62,5 +63,6 @@ export function useGameEngine({ startLevel, mode = 'single' }) {
     hardDrop,
     restart,
     addIncomingGarbage,
+    forceGameOver,
   };
 }

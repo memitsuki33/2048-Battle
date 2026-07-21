@@ -3,14 +3,14 @@ import { useGameEngine } from '../hooks/useGameEngine.js';
 import GameBoard from './GameBoard.jsx';
 import InfoPanel from './InfoPanel.jsx';
 
-export default function BattleGame({ p1Level, p2Level, onBack }) {
-  const p1 = useGameEngine({ startLevel: p1Level, mode: 'battle' });
-  const p2 = useGameEngine({ startLevel: p2Level, mode: 'battle' });
+export default function BattleGame({ level, onBack }) {
+  const p1 = useGameEngine({ startLevel: level, mode: 'battle' });
+  const p2 = useGameEngine({ startLevel: level, mode: 'battle' });
 
   const p1GarbageProcessed = useRef(0);
   const p2GarbageProcessed = useRef(0);
 
-  // P1 combos → queue garbage on P2 (lands when P2 places next piece)
+  // P1 combos → queue garbage on P2
   useEffect(() => {
     const sent = p1.state.totalGarbageSent;
     const newRows = sent - p1GarbageProcessed.current;
@@ -20,7 +20,7 @@ export default function BattleGame({ p1Level, p2Level, onBack }) {
     }
   }, [p1.state.totalGarbageSent]);
 
-  // P2 combos → queue garbage on P1 (lands when P1 places next piece)
+  // P2 combos → queue garbage on P1
   useEffect(() => {
     const sent = p2.state.totalGarbageSent;
     const newRows = sent - p2GarbageProcessed.current;
@@ -30,10 +30,28 @@ export default function BattleGame({ p1Level, p2Level, onBack }) {
     }
   }, [p2.state.totalGarbageSent]);
 
+  // When one player dies, immediately end the other player's game too
+  useEffect(() => {
+    if (p1.state.gameOver && !p2.state.gameOver) {
+      p2.forceGameOver();
+    }
+  }, [p1.state.gameOver]);
+
+  useEffect(() => {
+    if (p2.state.gameOver && !p1.state.gameOver) {
+      p1.forceGameOver();
+    }
+  }, [p2.state.gameOver]);
+
   const p1Dead = p1.state.gameOver;
   const p2Dead = p2.state.gameOver;
   const gameEnded = p1Dead || p2Dead;
-  const winner = p1Dead && p2Dead ? 'Draw' : p1Dead ? 'Player 2' : p2Dead ? 'Player 1' : null;
+  // If both died on the same tick it's a draw; otherwise the survivor wins
+  const winner = p1Dead && p2Dead
+    ? (p1.state.score > p2.state.score ? 'Player 1' : p2.state.score > p1.state.score ? 'Player 2' : 'Draw')
+    : p1Dead ? 'Player 2'
+    : p2Dead ? 'Player 1'
+    : null;
 
   const handleKey = useCallback(
     (e) => {
@@ -42,28 +60,23 @@ export default function BattleGame({ p1Level, p2Level, onBack }) {
         e.preventDefault();
       }
 
-      // Rematch on Enter when game ended
-      if ((key === 'Enter') && gameEnded) {
+      if (key === 'Enter' && gameEnded) {
         p1GarbageProcessed.current = 0;
         p2GarbageProcessed.current = 0;
-        p1.restart(p1Level);
-        p2.restart(p2Level);
+        p1.restart(level);
+        p2.restart(level);
         return;
       }
 
-      // P1: WASD + R for hard drop
-      if (!p1.state.gameOver) {
+      if (!gameEnded) {
+        // Player 1: WASD
         switch (key) {
           case 'a': case 'A': p1.moveLeft(); break;
           case 'd': case 'D': p1.moveRight(); break;
           case 's': case 'S': p1.softDrop(); break;
           case 'w': case 'W': p1.hardDrop(); break;
-          case 'r': case 'R': p1.hardDrop(); break;
         }
-      }
-
-      // P2: Arrow keys + Spacebar for hard drop
-      if (!p2.state.gameOver) {
+        // Player 2: Arrow keys
         switch (key) {
           case 'ArrowLeft':  p2.moveLeft(); break;
           case 'ArrowRight': p2.moveRight(); break;
@@ -73,7 +86,7 @@ export default function BattleGame({ p1Level, p2Level, onBack }) {
         }
       }
     },
-    [p1, p2, gameEnded, p1Level, p2Level]
+    [p1, p2, gameEnded, level]
   );
 
   useEffect(() => {
@@ -84,16 +97,16 @@ export default function BattleGame({ p1Level, p2Level, onBack }) {
   const handleRestart = () => {
     p1GarbageProcessed.current = 0;
     p2GarbageProcessed.current = 0;
-    p1.restart(p1Level);
-    p2.restart(p2Level);
+    p1.restart(level);
+    p2.restart(level);
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
       <div className="back-row">
         <button className="btn btn-ghost btn-sm" onClick={onBack}>Back</button>
-        <span style={{ color: 'var(--text-dim)', fontSize: '0.75rem', fontWeight: 700, letterSpacing: 2, textTransform: 'uppercase' }}>
-          Battle
+        <span style={{ color: 'var(--text-dim)', fontSize: '0.72rem', fontWeight: 700, letterSpacing: 2, textTransform: 'uppercase' }}>
+          Battle — Level {level}
         </span>
         {gameEnded && (
           <button className="btn btn-primary btn-sm" onClick={handleRestart}>
@@ -111,7 +124,7 @@ export default function BattleGame({ p1Level, p2Level, onBack }) {
       <div className="battle-wrapper">
         {/* Player 1 */}
         <div className="player-section p1-section">
-          <span className="player-label p1">Player 1 — A/D S/W/R</span>
+          <span className="player-label p1">Player 1 — A D S W</span>
           <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
             <InfoPanel
               state={p1.state}

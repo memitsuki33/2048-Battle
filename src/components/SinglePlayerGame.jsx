@@ -3,13 +3,6 @@ import { useGameEngine } from '../hooks/useGameEngine.js';
 import GameBoard from './GameBoard.jsx';
 import InfoPanel from './InfoPanel.jsx';
 
-const ANIM_OPTIONS = [
-  { value: 'none',   label: 'None' },
-  { value: 'normal', label: 'Normal' },
-  { value: '2x',     label: '2x Faster' },
-  { value: '4x',     label: '4x Faster' },
-];
-
 export default function SinglePlayerGame({ onBack }) {
   const { state, moveLeft, moveRight, softDrop, hardDrop, restart } = useGameEngine({
     startLevel: 0,
@@ -17,17 +10,16 @@ export default function SinglePlayerGame({ onBack }) {
   });
 
   const [animSpeed, setAnimSpeed] = useState('normal');
-  const [settingsOpen, setSettingsOpen] = useState(false);
+
+  // Checkpoint level: floor to nearest 10 (e.g. level 17 → continue from 10)
+  const checkpointLevel = Math.floor(state.level / 10) * 10;
 
   const handleKey = useCallback(
     (e) => {
       if (['ArrowLeft', 'ArrowRight', 'ArrowDown', 'ArrowUp', ' '].includes(e.key)) {
         e.preventDefault();
       }
-      if (state.gameOver) {
-        if (e.key === 'r' || e.key === 'R') restart(0);
-        return;
-      }
+      if (state.gameOver) return;
       switch (e.key) {
         case 'ArrowLeft':
         case 'a': case 'A':
@@ -45,7 +37,7 @@ export default function SinglePlayerGame({ onBack }) {
           hardDrop(); break;
       }
     },
-    [state.gameOver, moveLeft, moveRight, softDrop, hardDrop, restart]
+    [state.gameOver, moveLeft, moveRight, softDrop, hardDrop]
   );
 
   useEffect(() => {
@@ -59,37 +51,34 @@ export default function SinglePlayerGame({ onBack }) {
         <div className="back-row">
           <button className="btn btn-ghost btn-sm" onClick={onBack}>Back</button>
           <span className="player-label">Single Player</span>
-          <button
-            className="btn btn-ghost btn-sm"
-            onClick={() => setSettingsOpen(o => !o)}
-          >
-            Settings
-          </button>
-        </div>
-
-        {settingsOpen && (
-          <div className="settings-panel">
-            <div className="settings-label">Merge Animation</div>
-            <div className="settings-options">
-              {ANIM_OPTIONS.map(opt => (
-                <button
-                  key={opt.value}
-                  className={`settings-opt${animSpeed === opt.value ? ' active' : ''}`}
-                  onClick={() => setAnimSpeed(opt.value)}
-                >
-                  {opt.label}
-                </button>
-              ))}
-            </div>
+          {/* Inline animation toggle */}
+          <div style={{ display: 'flex', gap: 4 }}>
+            {['none', 'normal'].map(opt => (
+              <button
+                key={opt}
+                className={`settings-opt${animSpeed === opt ? ' active' : ''}`}
+                onClick={() => setAnimSpeed(opt)}
+                style={{ fontSize: '0.65rem', padding: '3px 8px' }}
+              >
+                {opt === 'none' ? 'No Anim' : 'Anim'}
+              </button>
+            ))}
           </div>
-        )}
+        </div>
 
         <GameBoard state={state} animSpeed={animSpeed} />
 
         {state.gameOver && (
-          <button className="btn btn-primary btn-sm" onClick={() => restart(0)}>
-            Play Again
-          </button>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'center' }}>
+            <button className="btn btn-primary btn-sm" onClick={() => restart(0)}>
+              Restart — Level 0
+            </button>
+            {checkpointLevel > 0 && (
+              <button className="btn btn-secondary btn-sm" onClick={() => restart(checkpointLevel)}>
+                Continue — Level {checkpointLevel}
+              </button>
+            )}
+          </div>
         )}
       </div>
 

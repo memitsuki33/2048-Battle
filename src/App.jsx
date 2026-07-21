@@ -55,8 +55,7 @@ export default function App() {
   if (screen === 'battle' && gameConfig) {
     return (
       <BattleGame
-        p1Level={gameConfig.p1Level}
-        p2Level={gameConfig.p2Level}
+        level={gameConfig.level}
         onBack={goMenu}
       />
     );
