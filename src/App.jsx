@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import MenuScreen from './components/MenuScreen.jsx';
 import LevelSelect from './components/LevelSelect.jsx';
 import SinglePlayerGame from './components/SinglePlayerGame.jsx';
+import MobileSinglePlayerGame from './components/MobileSinglePlayerGame.jsx';
 import BattleGame from './components/BattleGame.jsx';
 import MobileLobby from './components/MobileLobby.jsx';
 import MobileBattleGame from './components/MobileBattleGame.jsx';
@@ -12,7 +13,6 @@ export default function App() {
   const [gameConfig, setGameConfig] = useState(null);
 
   const goMenu = () => {
-    // Close any open WS when returning to menu
     if (gameConfig?.ws) {
       try { gameConfig.ws.close(); } catch {}
     }
@@ -23,7 +23,8 @@ export default function App() {
   if (screen === 'menu') {
     return (
       <MenuScreen
-        onSinglePlayer={() => setScreen('single-select')}
+        onSinglePlayerPC={() => setScreen('single-select')}
+        onSinglePlayerMobile={() => setScreen('mobile-single')}
         onBattlePC={() => setScreen('battle-select')}
         onBattleMobile={() => setScreen('mobile-lobby')}
         onTutorial={() => setScreen('tutorial')}
@@ -60,6 +61,10 @@ export default function App() {
 
   if (screen === 'single') {
     return <SinglePlayerGame onBack={goMenu} />;
+  }
+
+  if (screen === 'mobile-single') {
+    return <MobileSinglePlayerGame onBack={goMenu} />;
   }
 
   if (screen === 'battle' && gameConfig) {

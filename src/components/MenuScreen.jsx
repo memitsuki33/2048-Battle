@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function MenuScreen({ onSinglePlayer, onBattlePC, onBattleMobile, onTutorial }) {
+export default function MenuScreen({ onSinglePlayerPC, onSinglePlayerMobile, onBattlePC, onBattleMobile, onTutorial }) {
   return (
     <div className="menu">
       <div className="menu-title">
@@ -8,8 +8,11 @@ export default function MenuScreen({ onSinglePlayer, onBattlePC, onBattleMobile,
       </div>
       <div className="menu-subtitle">Merge — Combo — Dominate</div>
       <div className="menu-buttons">
-        <button className="btn btn-primary" onClick={onSinglePlayer}>
-          Single Player
+        <button className="btn btn-primary" onClick={onSinglePlayerPC}>
+          Single Player (PC)
+        </button>
+        <button className="btn btn-mobile" onClick={onSinglePlayerMobile}>
+          Single Player (Mobile)
         </button>
         <button className="btn btn-secondary" onClick={onBattlePC}>
           Battle (PC)
