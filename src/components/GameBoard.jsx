@@ -104,6 +104,7 @@ export default function GameBoard({ state, animSpeed = 'normal' }) {
 
             let type = 'empty';
             let value = raw;
+            if (raw < 0)   type = 'garbage';
             if (raw > 0)   type = 'board';
             if (isGhost)   { type = 'ghost'; value = currentPiece.value; }
             if (isPiece)   { type = 'piece'; value = currentPiece.value; }
@@ -122,6 +123,9 @@ export default function GameBoard({ state, animSpeed = 'normal' }) {
             } else if (type === 'ghost') {
               bg = 'rgba(255,255,255,0.07)';
               textColor = 'rgba(255,255,255,0.2)';
+            } else if (type === 'garbage') {
+              bg = '#555';
+              textColor = 'transparent';
             }
 
             const cellStyle = {
@@ -143,7 +147,7 @@ export default function GameBoard({ state, animSpeed = 'normal' }) {
                 className="cell"
                 style={cellStyle}
               >
-                {type !== 'empty' && (
+                {(type !== 'empty' && type !== 'garbage') && (
                   <span className={`cell-value${isLong ? ' long' : ''}`}>
                     {label}
                   </span>

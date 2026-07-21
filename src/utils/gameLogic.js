@@ -115,14 +115,17 @@ export function processMerges(board) {
 }
 
 // Returns a value to use for the next piece, based on current board state.
+// Caps the pool at the 2nd-highest value so the player never receives
+// their own top tile as an incoming piece.
 export function getNextPieceValue(board) {
-  const boardValues = new Set();
   let maxVal = 0;
+  let secondMaxVal = 0;
   for (let r = 0; r < ROWS; r++) {
     for (let c = 0; c < COLS; c++) {
-      if (board[r][c] > 0) {
-        boardValues.add(board[r][c]);
-        if (board[r][c] > maxVal) maxVal = board[r][c];
+      const v = board[r][c];
+      if (v > 0) {
+        if (v > maxVal) { secondMaxVal = maxVal; maxVal = v; }
+        else if (v > secondMaxVal && v < maxVal) { secondMaxVal = v; }
       }
     }
   }
@@ -132,11 +135,13 @@ export function getNextPieceValue(board) {
     return Math.random() < 0.75 ? 2 : 4;
   }
 
-  // Pool: top 5 powers of 2 up to maxVal
-  const eligible = ALL_VALUES.filter(v => v <= maxVal);
-  const pool = eligible.slice(-5);
+  // Cap at the 2nd-highest value (or one step below max if board is uniform)
+  const poolCap = secondMaxVal > 0 ? secondMaxVal : maxVal / 2;
+  const eligible = ALL_VALUES.filter(v => v <= poolCap);
+  if (eligible.length === 0) return 2;
 
-  // Uniform random from pool (no force-feed for stranded values)
+  // Pool: top 5 powers of 2 up to poolCap
+  const pool = eligible.slice(-5);
   return pool[Math.floor(Math.random() * pool.length)];
 }
 
@@ -154,8 +159,10 @@ export function getGarbagePool(board) {
 }
 
 // Add garbage rows at bottom (shifts board up). Returns { board, gameOver }.
-// garbagePool: array of values to pick from randomly per cell (sender's top tile pool).
-export function addGarbageRows(board, count, garbagePool = [2]) {
+// Garbage cells are -1 (gray, non-mergeable). The one gap per row contains
+// the receiver's highest tile value as a bonus — giving them a useful piece
+// to work with.
+export function addGarbageRows(board, count, _garbagePool = [2], receiverMaxVal = 2) {
   const newBoard = board.map(r => [...r]);
 
   for (let i = 0; i < count; i++) {
@@ -169,10 +176,10 @@ export function addGarbageRows(board, count, garbagePool = [2]) {
       newBoard[r] = [...newBoard[r + 1]];
     }
 
-    // Garbage row: each cell independently picks a random value from the pool
+    // Garbage row: gray (-1) cells with one gap containing receiver's max tile
     const gapCol = Math.floor(Math.random() * COLS);
     newBoard[ROWS - 1] = Array.from({ length: COLS }, (_, c) =>
-      c === gapCol ? 0 : garbagePool[Math.floor(Math.random() * garbagePool.length)]
+      c === gapCol ? receiverMaxVal : -1
     );
   }
 
@@ -282,8 +289,8 @@ function lockPiece(state) {
   // Process merges + cascades
   const { board: mergedBoard, score: mergeScore, chainCount } = processMerges(newBoard);
 
-  // Garbage: every chain group sends 3 rows (1 group = 3, 2 groups = 6, etc.)
-  const garbageToSend = chainCount * 3;
+  // Garbage: 1 row per chain/combo (3 combos → 3 rows, 1 combo → 1 row)
+  const garbageToSend = chainCount;
   const newTotalGarbage = totalGarbageSent + garbageToSend;
   const newScore = score + mergeScore;
 
@@ -291,7 +298,14 @@ function lockPiece(state) {
   let finalBoard = mergedBoard;
   let garbageKill = false;
   if (pendingIncoming > 0) {
-    const result = addGarbageRows(mergedBoard, pendingIncoming, pendingIncomingPool);
+    // Find the receiver's current highest tile to place in the garbage gap
+    let receiverMax = 2;
+    for (let r = 0; r < ROWS; r++) {
+      for (let c = 0; c < COLS; c++) {
+        if (mergedBoard[r][c] > receiverMax) receiverMax = mergedBoard[r][c];
+      }
+    }
+    const result = addGarbageRows(mergedBoard, pendingIncoming, pendingIncomingPool, receiverMax);
     finalBoard = result.board;
     if (result.gameOver) garbageKill = true;
   }
