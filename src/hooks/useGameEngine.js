@@ -52,7 +52,7 @@ export function useGameEngine({ startLevel, mode = 'single' }) {
   const softDrop  = useCallback(() => dispatch({ type: 'SOFT_DROP' }), []);
   const hardDrop  = useCallback(() => dispatch({ type: 'HARD_DROP' }), []);
   const restart   = useCallback((level) => dispatch({ type: 'RESTART', level: level ?? startLevel }), [startLevel]);
-  const receiveGarbage = useCallback((rows, garbageValue) => dispatch({ type: 'RECEIVE_GARBAGE', rows, garbageValue }), []);
+  const receiveGarbage = useCallback((rows, garbagePool) => dispatch({ type: 'RECEIVE_GARBAGE', rows, garbagePool }), []);
 
   return {
     state,
