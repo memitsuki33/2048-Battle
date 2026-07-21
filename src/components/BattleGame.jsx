@@ -11,24 +11,24 @@ export default function BattleGame({ p1Level, p2Level, onBack }) {
   const p1GarbageProcessed = useRef(0);
   const p2GarbageProcessed = useRef(0);
 
-  // P1 sends garbage to P2 — tile value = P1's most common board tile
+  // P1 combos → queue garbage on P2 (lands when P2 places next piece)
   useEffect(() => {
     const sent = p1.state.totalGarbageSent;
     const newRows = sent - p1GarbageProcessed.current;
     if (newRows > 0 && !p2.state.gameOver) {
       const garbagePool = getGarbagePool(p1.state.board);
-      p2.receiveGarbage(newRows, garbagePool);
+      p2.addIncomingGarbage(newRows, garbagePool);
       p1GarbageProcessed.current = sent;
     }
   }, [p1.state.totalGarbageSent]);
 
-  // P2 sends garbage to P1 — tile value = P2's most common board tile
+  // P2 combos → queue garbage on P1 (lands when P1 places next piece)
   useEffect(() => {
     const sent = p2.state.totalGarbageSent;
     const newRows = sent - p2GarbageProcessed.current;
     if (newRows > 0 && !p1.state.gameOver) {
       const garbagePool = getGarbagePool(p2.state.board);
-      p1.receiveGarbage(newRows, garbagePool);
+      p1.addIncomingGarbage(newRows, garbagePool);
       p2GarbageProcessed.current = sent;
     }
   }, [p2.state.totalGarbageSent]);
@@ -123,7 +123,7 @@ export default function BattleGame({ p1Level, p2Level, onBack }) {
             <InfoPanel
               state={p1.state}
               mode="battle"
-              pendingGarbage={p2.state.totalGarbageSent - p1GarbageProcessed.current}
+              pendingGarbage={p1.state.pendingIncoming}
             />
             <GameBoard state={p1.state} animSpeed="normal" />
           </div>
@@ -141,7 +141,7 @@ export default function BattleGame({ p1Level, p2Level, onBack }) {
             <InfoPanel
               state={p2.state}
               mode="battle"
-              pendingGarbage={p1.state.totalGarbageSent - p2GarbageProcessed.current}
+              pendingGarbage={p2.state.pendingIncoming}
             />
           </div>
         </div>

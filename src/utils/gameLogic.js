@@ -195,7 +195,9 @@ export function createInitialState(startLevel) {
     winner: null,
     totalGarbageSent: 0,
     lockFlash: false,
-    mergeFlash: 0, // generation counter for merge animation
+    mergeFlash: 0,
+    pendingIncoming: 0,       // garbage queued to land on next piece placement
+    pendingIncomingPool: [2], // tile values to use for that garbage
   };
 }
 
@@ -251,15 +253,13 @@ export function gameReducer(state, action) {
       return { ...state, level: state.level + 1 };
     }
 
-    case 'RECEIVE_GARBAGE': {
-      const { board, currentPiece } = state;
-      const { board: newBoard, gameOver } = addGarbageRows(board, action.rows, action.garbagePool ?? [2]);
-      if (gameOver) return { ...state, board: newBoard, gameOver: true };
-      // Validate current piece still has room
-      if (currentPiece && !canPlace(newBoard, currentPiece.row, currentPiece.col)) {
-        return { ...state, board: newBoard, gameOver: true };
-      }
-      return { ...state, board: newBoard };
+    // Queue incoming garbage — it lands when the receiver places their next piece
+    case 'ADD_INCOMING_GARBAGE': {
+      return {
+        ...state,
+        pendingIncoming: state.pendingIncoming + action.rows,
+        pendingIncomingPool: action.garbagePool ?? [2],
+      };
     }
 
     default:
@@ -268,7 +268,10 @@ export function gameReducer(state, action) {
 }
 
 function lockPiece(state) {
-  const { currentPiece, board, score, level, startLevel, totalGarbageSent } = state;
+  const {
+    currentPiece, board, score, level, startLevel,
+    totalGarbageSent, pendingIncoming, pendingIncomingPool,
+  } = state;
 
   // Place piece on board
   const newBoard = board.map(r => [...r]);
@@ -282,38 +285,48 @@ function lockPiece(state) {
   // Garbage: every chain group sends 3 rows (1 group = 3, 2 groups = 6, etc.)
   const garbageToSend = chainCount * 3;
   const newTotalGarbage = totalGarbageSent + garbageToSend;
-
-  // Compute new level for single player
   const newScore = score + mergeScore;
+
+  // Apply queued incoming garbage now that a piece was placed
+  let finalBoard = mergedBoard;
+  let garbageKill = false;
+  if (pendingIncoming > 0) {
+    const result = addGarbageRows(mergedBoard, pendingIncoming, pendingIncomingPool);
+    finalBoard = result.board;
+    if (result.gameOver) garbageKill = true;
+  }
 
   // Spawn next piece
   const spawnCol = Math.floor(COLS / 2);
   const newPieceValue = state.nextPieceValue;
-  const nextPieceValue = getNextPieceValue(mergedBoard);
+  const nextPieceValue = getNextPieceValue(finalBoard);
   const newPiece = { value: newPieceValue, col: spawnCol, row: 0 };
 
-  // Check game over: spawn blocked
-  if (!canPlace(mergedBoard, newPiece.row, newPiece.col)) {
+  if (garbageKill || !canPlace(finalBoard, newPiece.row, newPiece.col)) {
     return {
       ...state,
-      board: mergedBoard,
+      board: finalBoard,
       currentPiece: null,
       gameOver: true,
       score: newScore,
       totalGarbageSent: newTotalGarbage,
+      pendingIncoming: 0,
+      pendingIncomingPool: [2],
       mergeFlash: mergeScore > 0 ? (state.mergeFlash + 1) : state.mergeFlash,
     };
   }
 
   return {
     ...state,
-    board: mergedBoard,
+    board: finalBoard,
     currentPiece: newPiece,
     nextPieceValue,
     score: newScore,
     level,
     startLevel,
     totalGarbageSent: newTotalGarbage,
+    pendingIncoming: 0,
+    pendingIncomingPool: [2],
     mergeFlash: mergeScore > 0 ? (state.mergeFlash + 1) : state.mergeFlash,
   };
 }
