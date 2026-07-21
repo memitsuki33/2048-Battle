@@ -1,11 +1,17 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-import { WebSocketServer } from 'ws';
 
 function gameServerPlugin() {
   return {
     name: 'game-server',
-    configureServer(server) {
+    async configureServer(server) {
+      // Dynamically import ws so vite build succeeds even if ws is unavailable
+      let WebSocketServer;
+      try {
+        ({ WebSocketServer } = await import('ws'));
+      } catch {
+        return; // ws not available; skip game server (production static build)
+      }
       const wss = new WebSocketServer({ noServer: true });
 
       // In-memory rooms: code -> { players: [ws, ...], level: number }
