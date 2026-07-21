@@ -21,9 +21,9 @@ export function levelThreshold(n) {
 }
 
 export function getDropInterval(level) {
-  if (level === 0) return null; // no auto-drop at level 0
-  const ms = Math.max(1000, 10000 - level * 250);
-  return ms;
+  if (level === 0) return null; // level 0 = permanent, no auto-drop
+  // Level 1 = 3000ms, each level subtracts 50ms
+  return Math.max(50, 3000 - (level - 1) * 50);
 }
 
-export const MAX_LEVEL = 36; // level 36 -> 10 - 36*0.25 = 1s (minimum)
+export const MAX_LEVEL = 60; // level 60 -> 3000 - 59*50 = 50ms (minimum)

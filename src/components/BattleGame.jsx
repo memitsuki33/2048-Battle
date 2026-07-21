@@ -1,5 +1,6 @@
 import React, { useEffect, useCallback, useRef } from 'react';
 import { useGameEngine } from '../hooks/useGameEngine.js';
+import { getMostCommonValue } from '../utils/gameLogic.js';
 import GameBoard from './GameBoard.jsx';
 import InfoPanel from './InfoPanel.jsx';
 
@@ -10,22 +11,24 @@ export default function BattleGame({ p1Level, p2Level, onBack }) {
   const p1GarbageProcessed = useRef(0);
   const p2GarbageProcessed = useRef(0);
 
-  // P1 sends garbage to P2
+  // P1 sends garbage to P2 — tile value = P1's most common board tile
   useEffect(() => {
     const sent = p1.state.totalGarbageSent;
     const newRows = sent - p1GarbageProcessed.current;
     if (newRows > 0 && !p2.state.gameOver) {
-      p2.receiveGarbage(newRows);
+      const garbageValue = getMostCommonValue(p1.state.board);
+      p2.receiveGarbage(newRows, garbageValue);
       p1GarbageProcessed.current = sent;
     }
   }, [p1.state.totalGarbageSent]);
 
-  // P2 sends garbage to P1
+  // P2 sends garbage to P1 — tile value = P2's most common board tile
   useEffect(() => {
     const sent = p2.state.totalGarbageSent;
     const newRows = sent - p2GarbageProcessed.current;
     if (newRows > 0 && !p1.state.gameOver) {
-      p1.receiveGarbage(newRows);
+      const garbageValue = getMostCommonValue(p2.state.board);
+      p1.receiveGarbage(newRows, garbageValue);
       p2GarbageProcessed.current = sent;
     }
   }, [p2.state.totalGarbageSent]);

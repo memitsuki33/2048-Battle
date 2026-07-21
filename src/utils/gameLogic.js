@@ -147,8 +147,25 @@ export function getNextPieceValue(board) {
   return pool[Math.floor(Math.random() * pool.length)];
 }
 
+// Returns the most frequently occurring tile value on the board (used for garbage tile value).
+export function getMostCommonValue(board) {
+  const freq = {};
+  for (let r = 0; r < ROWS; r++) {
+    for (let c = 0; c < COLS; c++) {
+      const v = board[r][c];
+      if (v > 0) freq[v] = (freq[v] || 0) + 1;
+    }
+  }
+  let best = 2, bestCount = 0;
+  for (const [v, count] of Object.entries(freq)) {
+    if (count > bestCount) { bestCount = count; best = Number(v); }
+  }
+  return best;
+}
+
 // Add garbage rows at bottom (shifts board up). Returns { board, gameOver }.
-export function addGarbageRows(board, count) {
+// garbageValue: the tile value to fill garbage cells with (sender's most common tile).
+export function addGarbageRows(board, count, garbageValue = 2) {
   const newBoard = board.map(r => [...r]);
 
   for (let i = 0; i < count; i++) {
@@ -162,9 +179,9 @@ export function addGarbageRows(board, count) {
       newBoard[r] = [...newBoard[r + 1]];
     }
 
-    // Garbage row: -1 everywhere except one random gap
+    // Garbage row: sender's most common value everywhere except one random gap
     const gapCol = Math.floor(Math.random() * COLS);
-    newBoard[ROWS - 1] = Array(COLS).fill(-1);
+    newBoard[ROWS - 1] = Array(COLS).fill(garbageValue);
     newBoard[ROWS - 1][gapCol] = 0;
   }
 
@@ -245,7 +262,7 @@ export function gameReducer(state, action) {
 
     case 'RECEIVE_GARBAGE': {
       const { board, currentPiece } = state;
-      const { board: newBoard, gameOver } = addGarbageRows(board, action.rows);
+      const { board: newBoard, gameOver } = addGarbageRows(board, action.rows, action.garbageValue ?? 2);
       if (gameOver) return { ...state, board: newBoard, gameOver: true };
       // Validate current piece still has room
       if (currentPiece && !canPlace(newBoard, currentPiece.row, currentPiece.col)) {

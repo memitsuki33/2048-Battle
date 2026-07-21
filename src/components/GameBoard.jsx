@@ -104,10 +104,9 @@ export default function GameBoard({ state, animSpeed = 'normal' }) {
 
             let type = 'empty';
             let value = raw;
-            if (raw === -1)    type = 'garbage';
-            else if (raw > 0)  type = 'board';
-            if (isGhost)       { type = 'ghost'; value = currentPiece.value; }
-            if (isPiece)       { type = 'piece'; value = currentPiece.value; }
+            if (raw > 0)   type = 'board';
+            if (isGhost)   { type = 'ghost'; value = currentPiece.value; }
+            if (isPiece)   { type = 'piece'; value = currentPiece.value; }
 
             const color = getTileColor(value);
             const label = formatValue(value);
@@ -123,8 +122,6 @@ export default function GameBoard({ state, animSpeed = 'normal' }) {
             } else if (type === 'ghost') {
               bg = 'rgba(255,255,255,0.07)';
               textColor = 'rgba(255,255,255,0.2)';
-            } else if (type === 'garbage') {
-              bg = '#555';
             }
 
             const cellStyle = {
@@ -146,7 +143,7 @@ export default function GameBoard({ state, animSpeed = 'normal' }) {
                 className="cell"
                 style={cellStyle}
               >
-                {type !== 'empty' && type !== 'garbage' && (
+                {type !== 'empty' && (
                   <span className={`cell-value${isLong ? ' long' : ''}`}>
                     {label}
                   </span>
