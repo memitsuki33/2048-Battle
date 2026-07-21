@@ -1,6 +1,5 @@
 import React, { useEffect, useCallback, useRef } from 'react';
 import { useGameEngine } from '../hooks/useGameEngine.js';
-import { getGarbagePool } from '../utils/gameLogic.js';
 import GameBoard from './GameBoard.jsx';
 import InfoPanel from './InfoPanel.jsx';
 
@@ -16,8 +15,7 @@ export default function BattleGame({ p1Level, p2Level, onBack }) {
     const sent = p1.state.totalGarbageSent;
     const newRows = sent - p1GarbageProcessed.current;
     if (newRows > 0 && !p2.state.gameOver) {
-      const garbagePool = getGarbagePool(p1.state.board);
-      p2.addIncomingGarbage(newRows, garbagePool);
+      p2.addIncomingGarbage(newRows);
       p1GarbageProcessed.current = sent;
     }
   }, [p1.state.totalGarbageSent]);
@@ -27,8 +25,7 @@ export default function BattleGame({ p1Level, p2Level, onBack }) {
     const sent = p2.state.totalGarbageSent;
     const newRows = sent - p2GarbageProcessed.current;
     if (newRows > 0 && !p1.state.gameOver) {
-      const garbagePool = getGarbagePool(p2.state.board);
-      p1.addIncomingGarbage(newRows, garbagePool);
+      p1.addIncomingGarbage(newRows);
       p2GarbageProcessed.current = sent;
     }
   }, [p2.state.totalGarbageSent]);
@@ -106,11 +103,7 @@ export default function BattleGame({ p1Level, p2Level, onBack }) {
       </div>
 
       {winner && (
-        <div style={{
-          background: '#0a180a', border: '2px solid #4a7c2f',
-          borderRadius: 8, padding: '10px 28px',
-          fontWeight: 900, fontSize: '1.2rem', color: '#ee4035', letterSpacing: 1,
-        }}>
+        <div className="win-banner">
           {winner === 'Draw' ? 'DRAW' : `${winner.toUpperCase()} WINS`}
         </div>
       )}

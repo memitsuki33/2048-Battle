@@ -159,10 +159,9 @@ export function getGarbagePool(board) {
 }
 
 // Add garbage rows at bottom (shifts board up). Returns { board, gameOver }.
-// Garbage cells are -1 (gray, non-mergeable). The one gap per row contains
-// the receiver's highest tile value as a bonus — giving them a useful piece
-// to work with.
-export function addGarbageRows(board, count, _garbagePool = [2], receiverMaxVal = 2) {
+// Garbage cells are -1 (gray, non-mergeable). The gap is empty (0) so it
+// never triggers accidental merges that would destroy the gray row.
+export function addGarbageRows(board, count) {
   const newBoard = board.map(r => [...r]);
 
   for (let i = 0; i < count; i++) {
@@ -176,10 +175,10 @@ export function addGarbageRows(board, count, _garbagePool = [2], receiverMaxVal 
       newBoard[r] = [...newBoard[r + 1]];
     }
 
-    // Garbage row: gray (-1) cells with one gap containing receiver's max tile
+    // Garbage row: gray (-1) cells with one empty gap
     const gapCol = Math.floor(Math.random() * COLS);
     newBoard[ROWS - 1] = Array.from({ length: COLS }, (_, c) =>
-      c === gapCol ? receiverMaxVal : -1
+      c === gapCol ? 0 : -1
     );
   }
 
@@ -289,8 +288,8 @@ function lockPiece(state) {
   // Process merges + cascades
   const { board: mergedBoard, score: mergeScore, chainCount } = processMerges(newBoard);
 
-  // Garbage: 1 row per chain/combo (3 combos → 3 rows, 1 combo → 1 row)
-  const garbageToSend = chainCount;
+  // Garbage: 1 row per 3 combos (3→1, 6→2, 9→3 …)
+  const garbageToSend = Math.floor(chainCount / 3);
   const newTotalGarbage = totalGarbageSent + garbageToSend;
   const newScore = score + mergeScore;
 
@@ -298,14 +297,7 @@ function lockPiece(state) {
   let finalBoard = mergedBoard;
   let garbageKill = false;
   if (pendingIncoming > 0) {
-    // Find the receiver's current highest tile to place in the garbage gap
-    let receiverMax = 2;
-    for (let r = 0; r < ROWS; r++) {
-      for (let c = 0; c < COLS; c++) {
-        if (mergedBoard[r][c] > receiverMax) receiverMax = mergedBoard[r][c];
-      }
-    }
-    const result = addGarbageRows(mergedBoard, pendingIncoming, pendingIncomingPool, receiverMax);
+    const result = addGarbageRows(mergedBoard, pendingIncoming);
     finalBoard = result.board;
     if (result.gameOver) garbageKill = true;
   }
