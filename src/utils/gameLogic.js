@@ -304,7 +304,7 @@ function lockPiece(state) {
   // Consecutive-merge streak: increments when this piece caused a merge, resets otherwise
   const newStreak = mergeScore > 0 ? mergeStreak + 1 : 0;
   // Every 4 consecutive merging placements = +1 garbage
-  const streakBonus = (newStreak > 0 && newStreak % 4 === 0) ? 1 : 0;
+  const streakBonus = (newStreak > 0 && newStreak % 3 === 0) ? 1 : 0;
   const newStreakMilestone = streakMilestone + (streakBonus > 0 ? 1 : 0);
 
   // Garbage: 1 row per 3 chain-combos + streak bonus

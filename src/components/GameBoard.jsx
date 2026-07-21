@@ -15,17 +15,6 @@ export default function GameBoard({ state, animSpeed = 'normal' }) {
   const { board, currentPiece, gameOver, mergeStreak = 0, streakMilestone = 0 } = state;
   const { transition: transMs, merge: mergeMs } = ANIM_DURATIONS[animSpeed] ?? ANIM_DURATIONS.normal;
 
-  // Flash "+1 GARBAGE" when streak hits a milestone (multiple of 4)
-  const [milestoneFlash, setMilestoneFlash] = useState(false);
-  const prevMilestoneRef = useRef(0);
-  useEffect(() => {
-    if (streakMilestone > prevMilestoneRef.current) {
-      prevMilestoneRef.current = streakMilestone;
-      setMilestoneFlash(true);
-      const t = setTimeout(() => setMilestoneFlash(false), 1400);
-      return () => clearTimeout(t);
-    }
-  }, [streakMilestone]);
 
   // Detect which board cells changed (for merge pop animation)
   const prevBoardRef = useRef(null);
@@ -172,10 +161,8 @@ export default function GameBoard({ state, animSpeed = 'normal' }) {
 
       {/* Streak indicator */}
       {mergeStreak > 0 && !gameOver && (
-        <div className={`streak-overlay ${milestoneFlash ? 'streak-milestone' : ''}`}>
-          {milestoneFlash
-            ? '+1 GARBAGE'
-            : `STREAK ${mergeStreak}`}
+        <div className="streak-overlay">
+          STREAK {mergeStreak}
         </div>
       )}
 
