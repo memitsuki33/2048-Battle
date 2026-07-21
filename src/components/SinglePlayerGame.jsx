@@ -1,7 +1,14 @@
-import React, { useEffect, useCallback } from 'react';
+import React, { useEffect, useCallback, useState } from 'react';
 import { useGameEngine } from '../hooks/useGameEngine.js';
 import GameBoard from './GameBoard.jsx';
 import InfoPanel from './InfoPanel.jsx';
+
+const ANIM_OPTIONS = [
+  { value: 'none',   label: 'None' },
+  { value: 'normal', label: 'Normal' },
+  { value: '2x',     label: '2x Faster' },
+  { value: '4x',     label: '4x Faster' },
+];
 
 export default function SinglePlayerGame({ onBack }) {
   const { state, moveLeft, moveRight, softDrop, hardDrop, restart } = useGameEngine({
@@ -9,7 +16,9 @@ export default function SinglePlayerGame({ onBack }) {
     mode: 'single',
   });
 
-  // Keyboard controls
+  const [animSpeed, setAnimSpeed] = useState('normal');
+  const [settingsOpen, setSettingsOpen] = useState(false);
+
   const handleKey = useCallback(
     (e) => {
       if (['ArrowLeft', 'ArrowRight', 'ArrowDown', 'ArrowUp', ' '].includes(e.key)) {
@@ -21,26 +30,19 @@ export default function SinglePlayerGame({ onBack }) {
       }
       switch (e.key) {
         case 'ArrowLeft':
-        case 'a':
-        case 'A':
-          moveLeft();
-          break;
+        case 'a': case 'A':
+          moveLeft(); break;
         case 'ArrowRight':
-        case 'd':
-        case 'D':
-          moveRight();
-          break;
+        case 'd': case 'D':
+          moveRight(); break;
         case 'ArrowDown':
-        case 's':
-        case 'S':
-          softDrop();
-          break;
+        case 's': case 'S':
+          softDrop(); break;
         case 'ArrowUp':
-        case 'w':
-        case 'W':
+        case 'w': case 'W':
         case ' ':
-          hardDrop();
-          break;
+        case 'r': case 'R':
+          hardDrop(); break;
       }
     },
     [state.gameOver, moveLeft, moveRight, softDrop, hardDrop, restart]
@@ -57,11 +59,36 @@ export default function SinglePlayerGame({ onBack }) {
         <div className="back-row">
           <button className="btn btn-ghost btn-sm" onClick={onBack}>Back</button>
           <span className="player-label">Single Player</span>
+          <button
+            className="btn btn-ghost btn-sm"
+            onClick={() => setSettingsOpen(o => !o)}
+          >
+            Settings
+          </button>
         </div>
-        <GameBoard state={state} />
+
+        {settingsOpen && (
+          <div className="settings-panel">
+            <div className="settings-label">Merge Animation</div>
+            <div className="settings-options">
+              {ANIM_OPTIONS.map(opt => (
+                <button
+                  key={opt.value}
+                  className={`settings-opt${animSpeed === opt.value ? ' active' : ''}`}
+                  onClick={() => setAnimSpeed(opt.value)}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <GameBoard state={state} animSpeed={animSpeed} />
+
         {state.gameOver && (
           <button className="btn btn-primary btn-sm" onClick={() => restart(0)}>
-            Play Again (R)
+            Play Again
           </button>
         )}
       </div>

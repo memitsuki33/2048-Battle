@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function MenuScreen({ onSinglePlayer, onBattle }) {
+export default function MenuScreen({ onSinglePlayer, onBattle, onTutorial }) {
   return (
     <div className="menu">
       <div className="menu-title">
@@ -14,11 +14,9 @@ export default function MenuScreen({ onSinglePlayer, onBattle }) {
         <button className="btn btn-secondary" onClick={onBattle}>
           Battle (2 Players)
         </button>
-      </div>
-      <div className="controls-hint" style={{ maxWidth: 320, lineHeight: 1.9 }}>
-        <strong>Merging:</strong> Connect 2+ same tiles to merge them<br />
-        2 tiles = double &nbsp; 3 tiles = 4x &nbsp; 4 tiles = 8x &nbsp; 5 tiles = 16x<br />
-        <strong>Battle:</strong> Chain combos send garbage to opponent
+        <button className="btn btn-ghost" onClick={onTutorial}>
+          How to Play
+        </button>
       </div>
     </div>
   );

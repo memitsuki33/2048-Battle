@@ -3,6 +3,7 @@ import MenuScreen from './components/MenuScreen.jsx';
 import LevelSelect from './components/LevelSelect.jsx';
 import SinglePlayerGame from './components/SinglePlayerGame.jsx';
 import BattleGame from './components/BattleGame.jsx';
+import Tutorial from './components/Tutorial.jsx';
 
 export default function App() {
   const [screen, setScreen] = useState('menu');
@@ -15,8 +16,13 @@ export default function App() {
       <MenuScreen
         onSinglePlayer={() => setScreen('single-select')}
         onBattle={() => setScreen('battle-select')}
+        onTutorial={() => setScreen('tutorial')}
       />
     );
+  }
+
+  if (screen === 'tutorial') {
+    return <Tutorial onBack={goMenu} />;
   }
 
   if (screen === 'single-select') {

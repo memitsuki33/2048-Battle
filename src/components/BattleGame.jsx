@@ -7,7 +7,6 @@ export default function BattleGame({ p1Level, p2Level, onBack }) {
   const p1 = useGameEngine({ startLevel: p1Level, mode: 'battle' });
   const p2 = useGameEngine({ startLevel: p2Level, mode: 'battle' });
 
-  // Track processed garbage to avoid re-sending
   const p1GarbageProcessed = useRef(0);
   const p2GarbageProcessed = useRef(0);
 
@@ -31,7 +30,6 @@ export default function BattleGame({ p1Level, p2Level, onBack }) {
     }
   }, [p2.state.totalGarbageSent]);
 
-  // Determine winner
   const p1Dead = p1.state.gameOver;
   const p2Dead = p2.state.gameOver;
   const gameEnded = p1Dead || p2Dead;
@@ -40,36 +38,39 @@ export default function BattleGame({ p1Level, p2Level, onBack }) {
   const handleKey = useCallback(
     (e) => {
       const key = e.key;
-      if (['ArrowLeft', 'ArrowRight', 'ArrowDown', 'ArrowUp'].includes(key)) {
+      if (['ArrowLeft', 'ArrowRight', 'ArrowDown', 'ArrowUp', ' '].includes(key)) {
         e.preventDefault();
       }
 
-      // P1: WASD
+      // Rematch on Enter when game ended
+      if ((key === 'Enter') && gameEnded) {
+        p1GarbageProcessed.current = 0;
+        p2GarbageProcessed.current = 0;
+        p1.restart(p1Level);
+        p2.restart(p2Level);
+        return;
+      }
+
+      // P1: WASD + R for hard drop
       if (!p1.state.gameOver) {
         switch (key) {
           case 'a': case 'A': p1.moveLeft(); break;
           case 'd': case 'D': p1.moveRight(); break;
           case 's': case 'S': p1.softDrop(); break;
           case 'w': case 'W': p1.hardDrop(); break;
+          case 'r': case 'R': p1.hardDrop(); break;
         }
       }
 
-      // P2: Arrow keys
+      // P2: Arrow keys + Spacebar for hard drop
       if (!p2.state.gameOver) {
         switch (key) {
           case 'ArrowLeft':  p2.moveLeft(); break;
           case 'ArrowRight': p2.moveRight(); break;
           case 'ArrowDown':  p2.softDrop(); break;
           case 'ArrowUp':    p2.hardDrop(); break;
+          case ' ':          p2.hardDrop(); break;
         }
-      }
-
-      // Restart both
-      if ((key === 'r' || key === 'R') && gameEnded) {
-        p1GarbageProcessed.current = 0;
-        p2GarbageProcessed.current = 0;
-        p1.restart(p1Level);
-        p2.restart(p2Level);
       }
     },
     [p1, p2, gameEnded, p1Level, p2Level]
@@ -96,21 +97,16 @@ export default function BattleGame({ p1Level, p2Level, onBack }) {
         </span>
         {gameEnded && (
           <button className="btn btn-primary btn-sm" onClick={handleRestart}>
-            Rematch (R)
+            Rematch (Enter)
           </button>
         )}
       </div>
 
       {winner && (
         <div style={{
-          background: '#0a180a',
-          border: '2px solid #4a7c2f',
-          borderRadius: 8,
-          padding: '10px 28px',
-          fontWeight: 900,
-          fontSize: '1.2rem',
-          color: '#ee4035',
-          letterSpacing: 1,
+          background: '#0a180a', border: '2px solid #4a7c2f',
+          borderRadius: 8, padding: '10px 28px',
+          fontWeight: 900, fontSize: '1.2rem', color: '#ee4035', letterSpacing: 1,
         }}>
           {winner === 'Draw' ? 'DRAW' : `${winner.toUpperCase()} WINS`}
         </div>
@@ -119,27 +115,26 @@ export default function BattleGame({ p1Level, p2Level, onBack }) {
       <div className="battle-wrapper">
         {/* Player 1 */}
         <div className="player-section p1-section">
-          <span className="player-label p1">Player 1 — WASD</span>
+          <span className="player-label p1">Player 1 — A/D S/W/R</span>
           <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
             <InfoPanel
               state={p1.state}
               mode="battle"
               pendingGarbage={p2.state.totalGarbageSent - p1GarbageProcessed.current}
             />
-            <GameBoard state={p1.state} />
+            <GameBoard state={p1.state} animSpeed="normal" />
           </div>
         </div>
 
-        {/* VS separator */}
         <div className="battle-vs">
           <div className="vs-label">VS</div>
         </div>
 
         {/* Player 2 */}
         <div className="player-section p2-section">
-          <span className="player-label p2">Player 2 — Arrow Keys</span>
+          <span className="player-label p2">Player 2 — Arrows / Space</span>
           <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
-            <GameBoard state={p2.state} />
+            <GameBoard state={p2.state} animSpeed="normal" />
             <InfoPanel
               state={p2.state}
               mode="battle"

@@ -1,76 +1,150 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { ROWS, COLS } from '../utils/constants.js';
 import { getTileColor, formatValue } from '../utils/colors.js';
 import { getGhostRow } from '../utils/gameLogic.js';
 
-export default function GameBoard({ state }) {
-  const { board, currentPiece, gameOver, mergeFlash } = state;
-  const prevMergeFlash = useRef(mergeFlash);
-  const flashRef = useRef(null);
+// Animation duration in ms per speed setting
+const ANIM_DURATIONS = {
+  none:   { transition: 0,   merge: 0   },
+  normal: { transition: 120, merge: 300 },
+  '2x':   { transition: 60,  merge: 150 },
+  '4x':   { transition: 30,  merge: 75  },
+};
 
-  // Track merge flash for animation triggers
-  const didMerge = mergeFlash !== prevMergeFlash.current;
+export default function GameBoard({ state, animSpeed = 'normal' }) {
+  const { board, currentPiece, gameOver } = state;
+  const { transition: transMs, merge: mergeMs } = ANIM_DURATIONS[animSpeed] ?? ANIM_DURATIONS.normal;
+
+  // Detect which board cells changed (for merge pop animation)
+  const prevBoardRef = useRef(null);
+  const [poppingCells, setPoppingCells] = useState(new Set());
+  const popTimerRef = useRef(null);
+
   useEffect(() => {
-    prevMergeFlash.current = mergeFlash;
-  });
+    if (animSpeed === 'none') {
+      prevBoardRef.current = board;
+      return;
+    }
+    if (!prevBoardRef.current) {
+      prevBoardRef.current = board;
+      return;
+    }
 
-  // Compute ghost position
+    const changed = new Set();
+    for (let r = 0; r < ROWS; r++) {
+      for (let c = 0; c < COLS; c++) {
+        const prev = prevBoardRef.current[r][c];
+        const curr = board[r][c];
+        // A cell that gained a new positive value is a merge result
+        if (curr > 0 && curr !== prev) {
+          changed.add(`${r}-${c}`);
+        }
+      }
+    }
+    prevBoardRef.current = board;
+
+    if (changed.size > 0) {
+      if (popTimerRef.current) clearTimeout(popTimerRef.current);
+      setPoppingCells(changed);
+      popTimerRef.current = setTimeout(
+        () => setPoppingCells(new Set()),
+        mergeMs + 40
+      );
+    }
+
+    return () => {
+      if (popTimerRef.current) clearTimeout(popTimerRef.current);
+    };
+  }, [board, animSpeed, mergeMs]);
+
+  // Ghost row
   const ghostRow = currentPiece ? getGhostRow(board, currentPiece) : null;
 
-  // Build display grid: start from board values, overlay piece and ghost
-  const cells = Array(ROWS).fill(null).map((_, r) =>
-    Array(COLS).fill(null).map((_, c) => {
-      let value = board[r][c];
-      let type = 'board';
-      if (value === -1) type = 'garbage';
-      else if (value === 0) type = 'empty';
+  const transStyle = transMs > 0
+    ? `background-color ${transMs}ms ease, transform ${transMs}ms ease`
+    : 'none';
 
-      // Ghost
-      if (
-        currentPiece &&
-        ghostRow !== null &&
-        r === ghostRow &&
-        c === currentPiece.col &&
-        ghostRow !== currentPiece.row &&
-        board[r][c] === 0
-      ) {
-        return { value: currentPiece.value, type: 'ghost' };
-      }
-
-      // Active piece
-      if (currentPiece && r === currentPiece.row && c === currentPiece.col) {
-        return { value: currentPiece.value, type: 'piece' };
-      }
-
-      return { value, type };
-    })
-  );
+  const mergeKeyframes = mergeMs > 0
+    ? `@keyframes mergePop${mergeMs} {
+        0%   { transform: scale(1); }
+        40%  { transform: scale(1.25); }
+        70%  { transform: scale(0.93); }
+        100% { transform: scale(1); }
+      }`
+    : '';
 
   return (
-    <div className="board-outer" ref={flashRef}>
+    <div className="board-outer">
+      {mergeMs > 0 && (
+        <style>{`
+          @keyframes mergePopAnim {
+            0%   { transform: scale(1); }
+            40%  { transform: scale(1.25); }
+            70%  { transform: scale(0.93); }
+            100% { transform: scale(1); }
+          }
+        `}</style>
+      )}
+
       <div className="board-grid">
-        {cells.map((row, r) =>
-          row.map((cell, c) => {
-            const { value, type } = cell;
+        {Array.from({ length: ROWS }, (_, r) =>
+          Array.from({ length: COLS }, (_, c) => {
+            const raw = board[r][c];
+            const isGhost =
+              currentPiece &&
+              ghostRow !== null &&
+              r === ghostRow &&
+              c === currentPiece.col &&
+              ghostRow !== currentPiece.row &&
+              raw === 0;
+            const isPiece =
+              currentPiece &&
+              r === currentPiece.row &&
+              c === currentPiece.col;
+
+            let type = 'empty';
+            let value = raw;
+            if (raw === -1)    type = 'garbage';
+            else if (raw > 0)  type = 'board';
+            if (isGhost)       { type = 'ghost'; value = currentPiece.value; }
+            if (isPiece)       { type = 'piece'; value = currentPiece.value; }
+
             const color = getTileColor(value);
             const label = formatValue(value);
             const isLong = label.length >= 4;
+            const cellKey = `${r}-${c}`;
+            const isPopping = poppingCells.has(cellKey) && mergeMs > 0;
 
-            let className = 'cell';
-            if (type === 'empty') className += ' cell-empty';
-            else if (type === 'ghost') className += ' cell-ghost';
-            else if (type === 'piece') className += ' cell-piece';
-            else if (type === 'garbage') className += ' cell-garbage';
+            let bg = undefined;
+            let textColor = undefined;
+            if (type === 'board' || type === 'piece') {
+              bg = color.bg;
+              textColor = color.text;
+            } else if (type === 'ghost') {
+              bg = 'rgba(255,255,255,0.07)';
+              textColor = 'rgba(255,255,255,0.2)';
+            } else if (type === 'garbage') {
+              bg = '#555';
+            }
+
+            const cellStyle = {
+              transition: transStyle,
+              backgroundColor: bg,
+              color: textColor,
+              transform: type === 'piece' ? 'scale(1.04)' : undefined,
+              zIndex: type === 'piece' ? 2 : undefined,
+              boxShadow: type === 'piece' ? '0 2px 12px rgba(0,0,0,0.5)' : undefined,
+              border: type === 'ghost' ? '1.5px dashed rgba(255,255,255,0.15)' : undefined,
+              animation: isPopping
+                ? `mergePopAnim ${mergeMs}ms ease`
+                : undefined,
+            };
 
             return (
               <div
-                key={`${r}-${c}`}
-                className={className}
-                style={
-                  type !== 'empty' && type !== 'garbage'
-                    ? { backgroundColor: color.bg, color: color.text }
-                    : undefined
-                }
+                key={cellKey}
+                className="cell"
+                style={cellStyle}
               >
                 {type !== 'empty' && type !== 'garbage' && (
                   <span className={`cell-value${isLong ? ' long' : ''}`}>
@@ -82,6 +156,7 @@ export default function GameBoard({ state }) {
           })
         )}
       </div>
+
       {gameOver && (
         <div className="gameover-overlay">
           <div className="gameover-title">GAME OVER</div>
