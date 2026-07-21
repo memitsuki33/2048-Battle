@@ -279,8 +279,8 @@ function lockPiece(state) {
   // Process merges + cascades
   const { board: mergedBoard, score: mergeScore, chainCount } = processMerges(newBoard);
 
-  // Calculate garbage to send (chains >= 2 send garbage)
-  const garbageToSend = Math.max(0, chainCount - 1);
+  // Garbage: every chain group sends 3 rows (1 group = 3, 2 groups = 6, etc.)
+  const garbageToSend = chainCount * 3;
   const newTotalGarbage = totalGarbageSent + garbageToSend;
 
   // Compute new level for single player
