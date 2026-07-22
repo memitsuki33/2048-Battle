@@ -965,16 +965,19 @@ kbd {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background 0.08s, transform 0.08s;
-  box-shadow: 0 3px 0 #0f172a;
+  /* No transition — instant snap like a physical key */
+  transition: none;
+  box-shadow: 0 5px 0 #060d1a, inset 0 1px 0 rgba(255,255,255,0.08);
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
+  position: relative;
+  top: 0;
 }
 
 .dpad-btn:active {
-  background: var(--card-bg);
-  transform: translateY(2px);
-  box-shadow: none;
+  background: #334155;
+  box-shadow: 0 1px 0 #060d1a, inset 0 2px 4px rgba(0,0,0,0.5);
+  top: 4px;
 }
 
 .dpad-up {
@@ -982,11 +985,13 @@ kbd {
   color: #111;
   font-size: 0.7rem;
   border-color: #b45309;
-  box-shadow: 0 3px 0 #b45309;
+  box-shadow: 0 5px 0 #7c3a04, inset 0 1px 0 rgba(255,255,255,0.2);
 }
 
 .dpad-up:active {
   background: #d97706;
+  box-shadow: 0 1px 0 #7c3a04, inset 0 2px 4px rgba(0,0,0,0.4);
+  top: 4px;
 }
 
 /* ===== TETRIS-BATTLE COMBO DISPLAY ===== */
