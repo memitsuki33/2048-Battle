@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { ROWS, COLS } from '../utils/constants.js';
-import { getTileColor, formatValue } from '../utils/colors.js';
+import { getTileColor, formatValue, formatScore } from '../utils/colors.js';
 import { getGhostRow } from '../utils/gameLogic.js';
 
 // Animation duration in ms per speed setting
@@ -173,7 +173,7 @@ export default function GameBoard({ state, animSpeed = 'normal' }) {
       {gameOver && (
         <div className="gameover-overlay">
           <div className="gameover-title">GAME OVER</div>
-          <div className="gameover-score">Score: {state.score.toLocaleString()}</div>
+          <div className="gameover-score">Score: {formatScore(state.score)}</div>
         </div>
       )}
     </div>

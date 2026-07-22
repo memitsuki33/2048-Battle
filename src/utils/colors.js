@@ -32,3 +32,25 @@ export function formatValue(v) {
   if (v < 1000) return String(v);
   return `${Math.floor(v / 1000)}K`;
 }
+
+// Format a score number with K / M / B / T / Q suffixes (1 decimal when useful).
+export function formatScore(n) {
+  if (n == null || isNaN(n)) return '0';
+  const abs = Math.abs(n);
+  const tiers = [
+    { threshold: 1e15, suffix: 'Q' },
+    { threshold: 1e12, suffix: 'T' },
+    { threshold: 1e9,  suffix: 'B' },
+    { threshold: 1e6,  suffix: 'M' },
+    { threshold: 1e3,  suffix: 'K' },
+  ];
+  for (const { threshold, suffix } of tiers) {
+    if (abs >= threshold) {
+      const val = n / threshold;
+      // Show one decimal only when it adds info (e.g. 1.2K, not 10.0K)
+      const formatted = val < 10 ? val.toFixed(1) : Math.floor(val).toString();
+      return formatted + suffix;
+    }
+  }
+  return String(n);
+}

@@ -3,7 +3,7 @@ import { useGameEngine } from '../hooks/useGameEngine.js';
 import GameBoard from './GameBoard.jsx';
 import InfoPanel from './InfoPanel.jsx';
 import DPad from './DPad.jsx';
-import { formatValue } from '../utils/colors.js';
+import { formatValue, formatScore } from '../utils/colors.js';
 import { playGarbageSend, playGarbageReceive } from '../utils/soundEffects.js';
 
 export default function MobileBattleGame({ ws, level, playerIndex, onBack }) {

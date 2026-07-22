@@ -6,7 +6,7 @@
 
 :root {
   /* Cell size: shrinks to always fit the viewport (single player and battle) */
-  --cell-size: min(34px, calc((100svh - 140px) / 20), calc((100svw - 340px) / 21));
+  --cell-size: min(38px, calc((100svh - 140px) / 20), calc((100svw - 340px) / 16));
   --board-gap: 3px;
 
   /* Color palette */
@@ -253,7 +253,7 @@ body {
 
 .board-grid {
   display: grid;
-  grid-template-columns: repeat(10, var(--cell-size));
+  grid-template-columns: repeat(7, var(--cell-size));
   grid-template-rows: repeat(20, var(--cell-size));
   gap: var(--board-gap);
   background: #070d1a;
@@ -881,7 +881,7 @@ kbd {
   padding: 6px;
   /* Override cell size: sized for a single board on mobile.
      230px budget for header + dpad + banner; 105px for info panel + gaps */
-  --cell-size: min(38px, calc((100svh - 230px) / 20), calc((100svw - 105px) / 10));
+  --cell-size: min(38px, calc((100svh - 230px) / 20), calc((100svw - 105px) / 7));
 }
 
 .mobile-battle-header {

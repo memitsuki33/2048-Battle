@@ -1,5 +1,5 @@
 import React from 'react';
-import { getTileColor, formatValue } from '../utils/colors.js';
+import { getTileColor, formatValue, formatScore } from '../utils/colors.js';
 import { getDropInterval, levelThreshold, MAX_LEVEL } from '../utils/constants.js';
 
 export default function InfoPanel({ state, mode = 'single', pendingGarbage = 0 }) {
@@ -23,7 +23,7 @@ export default function InfoPanel({ state, mode = 'single', pendingGarbage = 0 }
       {/* Score */}
       <div className="info-block">
         <span className="info-label">Score</span>
-        <span className="info-value">{score.toLocaleString()}</span>
+        <span className="info-value">{formatScore(score)}</span>
       </div>
 
       {/* Level */}
@@ -40,7 +40,7 @@ export default function InfoPanel({ state, mode = 'single', pendingGarbage = 0 }
           <div className="score-bar-track">
             <div className="score-bar-fill" style={{ width: `${progressPct * 100}%` }} />
           </div>
-          <span className="score-bar-label">{nextThreshold?.toLocaleString()}</span>
+          <span className="score-bar-label">{formatScore(nextThreshold)}</span>
         </div>
       )}
 
