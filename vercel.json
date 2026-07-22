@@ -1,5 +1,5 @@
 {
-  "installCommand": "yarn install --production=true --ignore-scripts",
+  "installCommand": "yarn install --ignore-scripts",
   "buildCommand": "yarn run build",
   "outputDirectory": "dist",
   "framework": "vite",
