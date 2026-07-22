@@ -167,9 +167,6 @@ export default function GameBoard({ state, animSpeed = 'normal' }) {
         >
           <div className="combo-label">COMBO</div>
           <div className="combo-number">×{mergeStreak}</div>
-          {mergeStreak % 3 === 0 && (
-            <div className="combo-garbage">+1 GARBAGE</div>
-          )}
         </div>
       )}
 
