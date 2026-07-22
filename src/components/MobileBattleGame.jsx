@@ -4,6 +4,7 @@ import GameBoard from './GameBoard.jsx';
 import InfoPanel from './InfoPanel.jsx';
 import DPad from './DPad.jsx';
 import { formatValue } from '../utils/colors.js';
+import { playGarbageSend, playGarbageReceive } from '../utils/soundEffects.js';
 
 export default function MobileBattleGame({ ws, level, playerIndex, onBack }) {
   const engine = useGameEngine({ startLevel: level, mode: 'battle' });
@@ -17,6 +18,7 @@ export default function MobileBattleGame({ ws, level, playerIndex, onBack }) {
     const sent = engine.state.totalGarbageSent;
     const newRows = sent - garbageSentRef.current;
     if (newRows > 0 && ws && ws.readyState === 1) {
+      playGarbageSend();
       ws.send(JSON.stringify({ type: 'garbage', rows: newRows }));
       garbageSentRef.current = sent;
     }
@@ -50,6 +52,7 @@ export default function MobileBattleGame({ ws, level, playerIndex, onBack }) {
       try { msg = JSON.parse(e.data); } catch { return; }
 
       if (msg.type === 'garbage') {
+        playGarbageReceive();
         engine.addIncomingGarbage(msg.rows);
         setOppState(s => ({ ...s, pendingIncoming: s.pendingIncoming + msg.rows }));
       }

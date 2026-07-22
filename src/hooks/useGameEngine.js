@@ -1,7 +1,7 @@
 import { useReducer, useEffect, useRef, useCallback } from 'react';
 import { gameReducer, createInitialState } from '../utils/gameLogic.js';
 import { getDropInterval, levelThreshold, MAX_LEVEL } from '../utils/constants.js';
-import { playLevelUp, playMerge, playCombo } from '../utils/soundEffects.js';
+import { playLevelUp, playMerge, playCombo, playGameOver } from '../utils/soundEffects.js';
 
 export function useGameEngine({ startLevel, mode = 'single' }) {
   const [state, dispatch] = useReducer(
@@ -56,6 +56,15 @@ export function useGameEngine({ startLevel, mode = 'single' }) {
     }
     prevLevelRef.current = state.level;
   }, [state.level]);
+
+  // Game-over sound
+  const prevGameOverRef = useRef(false);
+  useEffect(() => {
+    if (state.gameOver && !prevGameOverRef.current) {
+      playGameOver();
+    }
+    prevGameOverRef.current = state.gameOver;
+  }, [state.gameOver]);
 
   // Merge + combo sounds — fire whenever a piece locks with merges
   const prevMergeFlashRef = useRef(state.mergeFlash);

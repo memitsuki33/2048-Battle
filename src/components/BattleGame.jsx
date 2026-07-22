@@ -2,7 +2,7 @@ import React, { useEffect, useCallback, useRef } from 'react';
 import { useGameEngine } from '../hooks/useGameEngine.js';
 import GameBoard from './GameBoard.jsx';
 import InfoPanel from './InfoPanel.jsx';
-import { playMove, playHardDrop } from '../utils/soundEffects.js';
+import { playMove, playHardDrop, playGarbageSend, playGarbageReceive } from '../utils/soundEffects.js';
 
 function isMobile() {
   return (
@@ -36,6 +36,7 @@ export default function BattleGame({ level, onBack }) {
     const sent = p1.state.totalGarbageSent;
     const newRows = sent - p1GarbageProcessed.current;
     if (newRows > 0 && !p2.state.gameOver) {
+      playGarbageSend();
       p2.addIncomingGarbage(newRows);
       p1GarbageProcessed.current = sent;
     }
@@ -46,10 +47,24 @@ export default function BattleGame({ level, onBack }) {
     const sent = p2.state.totalGarbageSent;
     const newRows = sent - p2GarbageProcessed.current;
     if (newRows > 0 && !p1.state.gameOver) {
+      playGarbageSend();
       p1.addIncomingGarbage(newRows);
       p2GarbageProcessed.current = sent;
     }
   }, [p2.state.totalGarbageSent]);
+
+  // Garbage received — play warning when pendingIncoming grows
+  const p1PendingRef = useRef(0);
+  useEffect(() => {
+    if (p1.state.pendingIncoming > p1PendingRef.current) playGarbageReceive();
+    p1PendingRef.current = p1.state.pendingIncoming;
+  }, [p1.state.pendingIncoming]);
+
+  const p2PendingRef = useRef(0);
+  useEffect(() => {
+    if (p2.state.pendingIncoming > p2PendingRef.current) playGarbageReceive();
+    p2PendingRef.current = p2.state.pendingIncoming;
+  }, [p2.state.pendingIncoming]);
 
   // When one player dies, immediately end the other player's game too
   useEffect(() => {
