@@ -1,6 +1,6 @@
 import React, { useCallback, useRef } from 'react';
 
-const COOLDOWN_MS = 100;
+const COOLDOWN_MS = 150;
 
 // Touch-friendly D-pad for mobile controls.
 // Uses onTouchStart for zero-delay response on mobile.
