@@ -160,7 +160,7 @@ export default function GameBoard({ state, animSpeed = 'normal' }) {
       </div>
 
       {/* Tetris-Battle-style combo display */}
-      {mergeStreak > 0 && !gameOver && (
+      {mergeStreak >= 2 && !gameOver && (
         <div
           key={mergeStreak}
           className={`combo-center combo-tier-${Math.min(Math.ceil(mergeStreak / 3), 5)}`}

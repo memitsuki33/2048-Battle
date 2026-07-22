@@ -1,7 +1,7 @@
 import { useReducer, useEffect, useRef, useCallback } from 'react';
 import { gameReducer, createInitialState } from '../utils/gameLogic.js';
 import { getDropInterval, levelThreshold, MAX_LEVEL } from '../utils/constants.js';
-import { playLevelUp, playCombo } from '../utils/soundEffects.js';
+import { playLevelUp, playMerge, playCombo } from '../utils/soundEffects.js';
 
 export function useGameEngine({ startLevel, mode = 'single' }) {
   const [state, dispatch] = useReducer(
@@ -57,14 +57,15 @@ export function useGameEngine({ startLevel, mode = 'single' }) {
     prevLevelRef.current = state.level;
   }, [state.level]);
 
-  // Combo sound — fires whenever a piece locks with merges
+  // Merge + combo sounds — fire whenever a piece locks with merges
   const prevMergeFlashRef = useRef(state.mergeFlash);
   useEffect(() => {
     if (state.mergeFlash !== prevMergeFlashRef.current) {
-      playCombo(state.lastChainCount);
+      playMerge();                        // always play on any merge
+      playCombo(state.mergeStreak);       // only plays when streak >= 2 (combo text visible)
       prevMergeFlashRef.current = state.mergeFlash;
     }
-  }, [state.mergeFlash, state.lastChainCount]);
+  }, [state.mergeFlash, state.mergeStreak]);
 
   const moveLeft       = useCallback(() => dispatch({ type: 'MOVE_LEFT' }), []);
   const moveRight      = useCallback(() => dispatch({ type: 'MOVE_RIGHT' }), []);

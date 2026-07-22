@@ -4,7 +4,7 @@
 const sounds = {
   move:      new Audio('/sounds/move.wav'),
   hard_drop: new Audio('/sounds/hard_drop.wav'),
-  combo_x1:  new Audio('/sounds/combo_x1.wav'),
+  merge:     new Audio('/sounds/merge.wav'),
   combo_x2:  new Audio('/sounds/combo_x2.wav'),
   combo_x3:  new Audio('/sounds/combo_x3.wav'),
   combo_x4:  new Audio('/sounds/combo_x4.wav'),
@@ -14,9 +14,10 @@ const sounds = {
   hover:     new Audio('/sounds/hover.wav'),
 };
 
-// Lower volume for frequent sounds so they don't overwhelm
+// Volume adjustments
 sounds.move.volume      = 0.45;
 sounds.hard_drop.volume = 0.6;
+sounds.merge.volume     = 0.55;
 sounds.hover.volume     = 0.3;
 sounds.click.volume     = 0.5;
 
@@ -37,23 +38,25 @@ export function playHardDrop() {
   play(sounds.hard_drop);
 }
 
+/** Play the merge sound — fires on every piece lock that causes any merge. */
+export function playMerge() {
+  play(sounds.merge);
+}
+
 /**
- * Play the appropriate combo sound based on the number of chain-merges
- * that occurred when a piece locked.
- * chainCount === 0  → no merge, no sound
- * chainCount === 1  → combo_x1
- * chainCount === 2  → combo_x2
- * chainCount === 3  → combo_x3
- * chainCount === 4  → combo_x4
- * chainCount >= 5   → combo_x5plus
+ * Play the combo sound based on the current mergeStreak (consecutive merging placements).
+ * Only called when mergeStreak >= 2 (i.e. when the combo text is shown).
+ * mergeStreak === 2  → combo_x2
+ * mergeStreak === 3  → combo_x3
+ * mergeStreak === 4  → combo_x4
+ * mergeStreak >= 5   → combo_x5plus
  */
-export function playCombo(chainCount) {
-  if (chainCount <= 0) return;
-  if (chainCount === 1) play(sounds.combo_x1);
-  else if (chainCount === 2) play(sounds.combo_x2);
-  else if (chainCount === 3) play(sounds.combo_x3);
-  else if (chainCount === 4) play(sounds.combo_x4);
-  else                       play(sounds.combo_x5);
+export function playCombo(mergeStreak) {
+  if (mergeStreak < 2) return;
+  if (mergeStreak === 2) play(sounds.combo_x2);
+  else if (mergeStreak === 3) play(sounds.combo_x3);
+  else if (mergeStreak === 4) play(sounds.combo_x4);
+  else                        play(sounds.combo_x5);
 }
 
 /** Play the level-up fanfare. */
