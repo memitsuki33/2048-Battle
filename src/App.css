@@ -366,13 +366,13 @@ body {
 }
 
 .next-tile {
-  width: calc(var(--cell-size) * 1.1);
-  height: calc(var(--cell-size) * 1.1);
+  width: calc(var(--cell-size) * 1.6);
+  height: calc(var(--cell-size) * 1.6);
   border-radius: 5px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: calc(var(--cell-size) * 0.28);
+  font-size: calc(var(--cell-size) * 0.52);
   font-weight: 900;
   transition: background-color 0.12s ease;
 }
