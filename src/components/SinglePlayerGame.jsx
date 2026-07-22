@@ -89,21 +89,19 @@ export default function SinglePlayerGame({ onBack }) {
 
         <GameBoard state={state} animSpeed={animSpeed} />
 
-        {/* Reserved space so the board never moves when game-over buttons appear */}
-        <div style={{ minHeight: 76, display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'center', justifyContent: 'flex-start' }}>
-          {state.gameOver && (
-            <>
-              <button className="btn btn-primary btn-sm" onClick={() => restart(0)}>
-                Restart — Level 0
+        {/* Fixed so these buttons never affect the board's position */}
+        {state.gameOver && (
+          <div style={{ position: 'fixed', bottom: 24, left: '50%', transform: 'translateX(-50%)', display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'center', zIndex: 50 }}>
+            <button className="btn btn-primary btn-sm" onClick={() => restart(0)}>
+              Restart — Level 0
+            </button>
+            {checkpointLevel > 0 && (
+              <button className="btn btn-secondary btn-sm" onClick={() => restart(checkpointLevel)}>
+                Continue — Level {checkpointLevel}
               </button>
-              {checkpointLevel > 0 && (
-                <button className="btn btn-secondary btn-sm" onClick={() => restart(checkpointLevel)}>
-                  Continue — Level {checkpointLevel}
-                </button>
-              )}
-            </>
-          )}
-        </div>
+            )}
+          </div>
+        )}
       </div>
 
       <InfoPanel state={state} mode="single" />
