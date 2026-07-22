@@ -6,7 +6,7 @@
 
 :root {
   /* Cell size: shrinks to always fit the viewport (single player and battle) */
-  --cell-size: min(46px, calc((100svh - 140px) / 15), calc((100svw - 360px) / 13));
+  --cell-size: min(34px, calc((100svh - 140px) / 20), calc((100svw - 340px) / 21));
   --board-gap: 3px;
 
   /* Color palette */
@@ -30,7 +30,7 @@ html, body {
 body {
   background: var(--bg);
   color: var(--text);
-  font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+  font-family: 'Righteous', system-ui, sans-serif;
 }
 
 #root {
@@ -253,8 +253,8 @@ body {
 
 .board-grid {
   display: grid;
-  grid-template-columns: repeat(6, var(--cell-size));
-  grid-template-rows: repeat(15, var(--cell-size));
+  grid-template-columns: repeat(10, var(--cell-size));
+  grid-template-rows: repeat(20, var(--cell-size));
   gap: var(--board-gap);
   background: #070d1a;
   padding: var(--board-gap);
@@ -276,15 +276,17 @@ body {
 }
 
 .cell-value {
-  font-size: calc(var(--cell-size) * 0.28);
+  font-size: calc(var(--cell-size) * 0.42);
   font-weight: 900;
   line-height: 1;
   pointer-events: none;
   user-select: none;
+  letter-spacing: -0.5px;
 }
 
 .cell-value.long {
-  font-size: calc(var(--cell-size) * 0.22);
+  font-size: calc(var(--cell-size) * 0.30);
+  letter-spacing: -1px;
 }
 
 /* ===== GAME OVER OVERLAY ===== */
@@ -877,7 +879,7 @@ kbd {
   padding: 6px;
   /* Override cell size: sized for a single board on mobile.
      230px budget for header + dpad + banner; 105px for info panel + gaps */
-  --cell-size: min(44px, calc((100svh - 230px) / 15), calc((100svw - 105px) / 6));
+  --cell-size: min(38px, calc((100svh - 230px) / 20), calc((100svw - 105px) / 10));
 }
 
 .mobile-battle-header {

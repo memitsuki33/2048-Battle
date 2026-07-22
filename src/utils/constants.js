@@ -1,6 +1,6 @@
-export const COLS = 6;
-export const ROWS = 15;
-export const SPAWN_COL = 2; // center-left
+export const COLS = 10;
+export const ROWS = 20;
+export const SPAWN_COL = 5; // center
 
 // All powers of 2 the game uses
 export const ALL_VALUES = [
