@@ -2,6 +2,7 @@ import React, { useEffect, useCallback, useState } from 'react';
 import { useGameEngine } from '../hooks/useGameEngine.js';
 import GameBoard from './GameBoard.jsx';
 import InfoPanel from './InfoPanel.jsx';
+import { playMove, playHardDrop } from '../utils/soundEffects.js';
 
 function isMobile() {
   return (
@@ -43,10 +44,10 @@ export default function SinglePlayerGame({ onBack }) {
       switch (e.key) {
         case 'ArrowLeft':
         case 'a': case 'A':
-          moveLeft(); break;
+          playMove(); moveLeft(); break;
         case 'ArrowRight':
         case 'd': case 'D':
-          moveRight(); break;
+          playMove(); moveRight(); break;
         case 'ArrowDown':
         case 's': case 'S':
           softDrop(); break;
@@ -54,7 +55,7 @@ export default function SinglePlayerGame({ onBack }) {
         case 'w': case 'W':
         case ' ':
         case 'r': case 'R':
-          hardDrop(); break;
+          playHardDrop(); hardDrop(); break;
       }
     },
     [state.gameOver, moveLeft, moveRight, softDrop, hardDrop]

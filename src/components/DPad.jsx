@@ -1,4 +1,5 @@
 import React, { useCallback, useRef } from 'react';
+import { playMove, playHardDrop } from '../utils/soundEffects.js';
 
 const COOLDOWN_MS = 150;
 
@@ -23,8 +24,8 @@ export default function DPad({ onLeft, onRight, onSoftDrop, onHardDrop }) {
         <div className="dpad-spacer" />
         <button
           className="dpad-btn dpad-up"
-          onTouchStart={makeHandler(onHardDrop, 'up')}
-          onClick={makeHandler(onHardDrop, 'up')}
+          onTouchStart={makeHandler(() => { playHardDrop(); onHardDrop(); }, 'up')}
+          onClick={makeHandler(() => { playHardDrop(); onHardDrop(); }, 'up')}
           aria-label="Hard drop"
         >
           ▲▲
@@ -36,8 +37,8 @@ export default function DPad({ onLeft, onRight, onSoftDrop, onHardDrop }) {
       <div className="dpad-row">
         <button
           className="dpad-btn dpad-left"
-          onTouchStart={makeHandler(onLeft, 'left')}
-          onClick={makeHandler(onLeft, 'left')}
+          onTouchStart={makeHandler(() => { playMove(); onLeft(); }, 'left')}
+          onClick={makeHandler(() => { playMove(); onLeft(); }, 'left')}
           aria-label="Move left"
         >
           ◀
@@ -52,8 +53,8 @@ export default function DPad({ onLeft, onRight, onSoftDrop, onHardDrop }) {
         </button>
         <button
           className="dpad-btn dpad-right"
-          onTouchStart={makeHandler(onRight, 'right')}
-          onClick={makeHandler(onRight, 'right')}
+          onTouchStart={makeHandler(() => { playMove(); onRight(); }, 'right')}
+          onClick={makeHandler(() => { playMove(); onRight(); }, 'right')}
           aria-label="Move right"
         >
           ▶

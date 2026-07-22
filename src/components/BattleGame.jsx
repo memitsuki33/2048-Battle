@@ -2,6 +2,7 @@ import React, { useEffect, useCallback, useRef } from 'react';
 import { useGameEngine } from '../hooks/useGameEngine.js';
 import GameBoard from './GameBoard.jsx';
 import InfoPanel from './InfoPanel.jsx';
+import { playMove, playHardDrop } from '../utils/soundEffects.js';
 
 function isMobile() {
   return (
@@ -91,18 +92,18 @@ export default function BattleGame({ level, onBack }) {
       if (!gameEnded) {
         // Player 1: WASD
         switch (key) {
-          case 'a': case 'A': p1.moveLeft(); break;
-          case 'd': case 'D': p1.moveRight(); break;
+          case 'a': case 'A': playMove(); p1.moveLeft(); break;
+          case 'd': case 'D': playMove(); p1.moveRight(); break;
           case 's': case 'S': p1.softDrop(); break;
-          case 'w': case 'W': p1.hardDrop(); break;
+          case 'w': case 'W': playHardDrop(); p1.hardDrop(); break;
         }
         // Player 2: Arrow keys
         switch (key) {
-          case 'ArrowLeft':  p2.moveLeft(); break;
-          case 'ArrowRight': p2.moveRight(); break;
+          case 'ArrowLeft':  playMove(); p2.moveLeft(); break;
+          case 'ArrowRight': playMove(); p2.moveRight(); break;
           case 'ArrowDown':  p2.softDrop(); break;
-          case 'ArrowUp':    p2.hardDrop(); break;
-          case ' ':          p2.hardDrop(); break;
+          case 'ArrowUp':    playHardDrop(); p2.hardDrop(); break;
+          case ' ':          playHardDrop(); p2.hardDrop(); break;
         }
       }
     },

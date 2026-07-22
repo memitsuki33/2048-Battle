@@ -214,6 +214,7 @@ export function createInitialState(startLevel) {
     pendingIncomingPool: [2],
     mergeStreak: 0,       // consecutive piece placements that produced a merge
     streakMilestone: 0,   // bumped each time streak hits a multiple of 4 (for flash)
+    lastChainCount: 0,    // chain-merge count from the most recent piece lock (for combo sounds)
   };
 }
 
@@ -344,6 +345,7 @@ function lockPiece(state) {
       mergeFlash: mergeScore > 0 ? (state.mergeFlash + 1) : state.mergeFlash,
       mergeStreak: 0,
       streakMilestone: newStreakMilestone,
+      lastChainCount: chainCount,
     };
   }
 
@@ -361,5 +363,6 @@ function lockPiece(state) {
     mergeFlash: mergeScore > 0 ? (state.mergeFlash + 1) : state.mergeFlash,
     mergeStreak: newStreak,
     streakMilestone: newStreakMilestone,
+    lastChainCount: chainCount,
   };
 }
