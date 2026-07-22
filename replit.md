@@ -5,7 +5,7 @@ A Tetris-Battle-style 2048 game for 1 or 2 players, built with React + Vite.
 ## How to Run
 
 ```
-npm run dev
+yarn dev
 ```
 
 Runs on port 5000.
