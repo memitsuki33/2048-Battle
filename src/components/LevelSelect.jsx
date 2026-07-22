@@ -4,7 +4,7 @@ import { getDropInterval, MAX_LEVEL } from '../utils/constants.js';
 function LevelStepper({ value, onChange }) {
   const interval = getDropInterval(value);
   const speedLabel =
-    value === 0 ? 'No auto-drop' : `Drop every ${(interval / 1000).toFixed(2)}s`;
+    value === 0 ? 'No auto-drop' : `Drop every ${(interval / 1000).toFixed(2)}s`; // 1.20s → 0.02s
 
   return (
     <div className="level-player-col">
