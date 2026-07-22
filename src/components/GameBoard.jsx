@@ -159,10 +159,17 @@ export default function GameBoard({ state, animSpeed = 'normal' }) {
         )}
       </div>
 
-      {/* Streak indicator */}
+      {/* Tetris-Battle-style combo display */}
       {mergeStreak > 0 && !gameOver && (
-        <div className="streak-overlay">
-          STREAK {mergeStreak}
+        <div
+          key={mergeStreak}
+          className={`combo-center combo-tier-${Math.min(Math.ceil(mergeStreak / 3), 5)}`}
+        >
+          <div className="combo-label">COMBO</div>
+          <div className="combo-number">×{mergeStreak}</div>
+          {mergeStreak % 3 === 0 && (
+            <div className="combo-garbage">+1 GARBAGE</div>
+          )}
         </div>
       )}
 
