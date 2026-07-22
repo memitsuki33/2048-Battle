@@ -126,20 +126,33 @@ export function processMerges(board) {
 }
 
 // Returns a value to use for the next piece, based on current board state.
+//
+// Pool: top 5 values ≤ secondMaxVal on the board.
+// Weights (lowest → highest in pool): 30 / 20 / 25 / 15 / 10 %
+//   For pools smaller than 5, the bottom-N weights are taken and re-normalised.
+//
+// Board-min bonus: if the board contains a tile BELOW the pool's minimum
+//   (a stranded low tile), it splits the lowest slot's weight 50 / 50 with
+//   the pool minimum. e.g. pool=[4,8,16,32,64] with a 2 on board →
+//   2 = 15 %, 4 = 15 %, 8 = 20 %, 16 = 25 %, 32 = 15 %, 64 = 10 %.
 export function getNextPieceValue(board) {
   let maxVal = 0;
   let secondMaxVal = 0;
+  let boardMin = Infinity; // smallest positive non-garbage tile on the board
+
   for (let r = 0; r < ROWS; r++) {
     for (let c = 0; c < COLS; c++) {
       const v = board[r][c];
       if (v > 0) {
         if (v > maxVal) { secondMaxVal = maxVal; maxVal = v; }
         else if (v > secondMaxVal && v < maxVal) { secondMaxVal = v; }
+        if (v < boardMin) boardMin = v;
       }
     }
   }
 
   if (maxVal === 0) {
+    // Empty board: 75 % → 2, 25 % → 4 (unchanged)
     return Math.random() < 0.75 ? 2 : 4;
   }
 
@@ -147,8 +160,43 @@ export function getNextPieceValue(board) {
   const eligible = ALL_VALUES.filter(v => v <= poolCap);
   if (eligible.length === 0) return 2;
 
+  // Up to 5 values, highest end of eligible list
   const pool = eligible.slice(-5);
-  return pool[Math.floor(Math.random() * pool.length)];
+
+  // Base weights: index 0 = lowest value in pool, index 4 = highest
+  const BASE_WEIGHTS = [0.30, 0.20, 0.25, 0.15, 0.10];
+  const n = pool.length;
+
+  // Take the bottom-N weights and re-normalise so they sum to 1
+  const raw = BASE_WEIGHTS.slice(0, n);
+  const total = raw.reduce((a, b) => a + b, 0);
+  const weights = raw.map(w => w / total);
+
+  // Board-min bonus: if the actual board minimum is below pool[0],
+  // split pool[0]'s weight 50 / 50 between pool[0] and boardMin.
+  const hasBoardMin = boardMin < pool[0];
+  const lowestWeight = weights[0];
+
+  // Build the final candidates array: [value, cumulative-prob]
+  const entries = []; // { value, weight }
+  if (hasBoardMin) {
+    entries.push({ value: boardMin, weight: lowestWeight * 0.5 });
+    entries.push({ value: pool[0],  weight: lowestWeight * 0.5 });
+  } else {
+    entries.push({ value: pool[0], weight: lowestWeight });
+  }
+  for (let i = 1; i < n; i++) {
+    entries.push({ value: pool[i], weight: weights[i] });
+  }
+
+  // Weighted random pick
+  const r = Math.random();
+  let cumulative = 0;
+  for (const { value, weight } of entries) {
+    cumulative += weight;
+    if (r < cumulative) return value;
+  }
+  return entries[entries.length - 1].value;
 }
 
 // Returns the pool of values to use for garbage gap tiles.
