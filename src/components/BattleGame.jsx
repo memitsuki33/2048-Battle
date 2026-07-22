@@ -9,7 +9,7 @@ function isMobile() {
     (navigator.maxTouchPoints > 0 || window.innerWidth < 768)
   );
 }
-//green bean man
+//green bean mans
 export default function BattleGame({ level, onBack }) {
   if (isMobile()) {
     return (
