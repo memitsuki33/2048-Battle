@@ -145,7 +145,7 @@ export default function BattleGame({ level, onBack }) {
       </div>
 
       {winner && (
-        <div className="win-banner">
+        <div className="win-banner" style={{ position: 'fixed', top: 52, left: '50%', transform: 'translateX(-50%)', zIndex: 50 }}>
           {winner === 'Draw' ? 'DRAW' : `${winner.toUpperCase()} WINS`}
         </div>
       )}

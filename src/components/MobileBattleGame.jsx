@@ -106,9 +106,10 @@ export default function MobileBattleGame({ ws, level, playerIndex, onBack }) {
         </div>
       </div>
 
-      {/* Result banner */}
+      {/* Result banner — fixed so it doesn't shift the board */}
       {resultText && (
-        <div className={`win-banner ${resultText === 'YOU WIN' ? '' : resultText === 'DRAW' ? 'draw' : 'lose'}`}>
+        <div className={`win-banner ${resultText === 'YOU WIN' ? '' : resultText === 'DRAW' ? 'draw' : 'lose'}`}
+          style={{ position: 'fixed', top: 52, left: '50%', transform: 'translateX(-50%)', zIndex: 50 }}>
           {resultText}
         </div>
       )}
@@ -123,22 +124,21 @@ export default function MobileBattleGame({ ws, level, playerIndex, onBack }) {
         <GameBoard state={engine.state} animSpeed="normal" />
       </div>
 
-      {/* Restart button when game ends */}
-      {gameEnded && (
-        <button className="btn btn-primary mobile-restart-btn" onClick={handleRestart}>
-          Rematch
-        </button>
-      )}
-
-      {/* D-pad controls */}
-      {!gameEnded && (
-        <DPad
-          onLeft={engine.moveLeft}
-          onRight={engine.moveRight}
-          onSoftDrop={engine.softDrop}
-          onHardDrop={engine.hardDrop}
-        />
-      )}
+      {/* D-pad / rematch — fixed height so the board never shifts */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 148 }}>
+        {gameEnded ? (
+          <button className="btn btn-primary mobile-restart-btn" onClick={handleRestart}>
+            Rematch
+          </button>
+        ) : (
+          <DPad
+            onLeft={engine.moveLeft}
+            onRight={engine.moveRight}
+            onSoftDrop={engine.softDrop}
+            onHardDrop={engine.hardDrop}
+          />
+        )}
+      </div>
     </div>
   );
 }

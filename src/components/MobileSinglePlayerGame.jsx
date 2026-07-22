@@ -30,29 +30,28 @@ export default function MobileSinglePlayerGame({ onBack }) {
         <GameBoard state={state} animSpeed="normal" />
       </div>
 
-      {/* Restart buttons when game over */}
-      {state.gameOver && (
-        <div style={{ display: 'flex', gap: 8 }}>
-          <button className="btn btn-primary btn-sm" onClick={() => restart(0)}>
-            Restart — Lv 0
-          </button>
-          {checkpointLevel > 0 && (
-            <button className="btn btn-secondary btn-sm" onClick={() => restart(checkpointLevel)}>
-              Continue — Lv {checkpointLevel}
+      {/* D-pad / restart — fixed height so the board never shifts */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 148 }}>
+        {state.gameOver ? (
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button className="btn btn-primary btn-sm" onClick={() => restart(0)}>
+              Restart — Lv 0
             </button>
-          )}
-        </div>
-      )}
-
-      {/* D-pad controls */}
-      {!state.gameOver && (
-        <DPad
-          onLeft={moveLeft}
-          onRight={moveRight}
-          onSoftDrop={softDrop}
-          onHardDrop={hardDrop}
-        />
-      )}
+            {checkpointLevel > 0 && (
+              <button className="btn btn-secondary btn-sm" onClick={() => restart(checkpointLevel)}>
+                Continue — Lv {checkpointLevel}
+              </button>
+            )}
+          </div>
+        ) : (
+          <DPad
+            onLeft={moveLeft}
+            onRight={moveRight}
+            onSoftDrop={softDrop}
+            onHardDrop={hardDrop}
+          />
+        )}
+      </div>
     </div>
   );
 }

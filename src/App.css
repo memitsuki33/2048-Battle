@@ -348,6 +348,8 @@ body {
   font-size: clamp(1rem, 2.5vw, 1.3rem);
   font-weight: 900;
   color: var(--text);
+  font-variant-numeric: tabular-nums;
+  min-height: 1.4em;
 }
 
 .info-value.red { color: var(--danger); }

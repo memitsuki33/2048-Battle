@@ -16,7 +16,7 @@ const sounds = {
 
 // Volume adjustments
 sounds.move.volume      = 0.45;
-sounds.hard_drop.volume = 0.6;
+sounds.hard_drop.volume = 1.0;
 sounds.merge.volume     = 0.55;
 sounds.hover.volume     = 0.3;
 sounds.click.volume     = 0.5;
