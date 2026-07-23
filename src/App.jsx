@@ -11,6 +11,7 @@ import Tutorial from './components/Tutorial.jsx';
 export default function App() {
   const [screen, setScreen] = useState('menu');
   const [gameConfig, setGameConfig] = useState(null);
+  const [animSpeed, setAnimSpeed] = useState('normal');
 
   const goMenu = () => {
     if (gameConfig?.ws) {
@@ -28,6 +29,8 @@ export default function App() {
         onBattlePC={() => setScreen('battle-select')}
         onBattleMobile={() => setScreen('mobile-lobby')}
         onTutorial={() => setScreen('tutorial')}
+        animSpeed={animSpeed}
+        onAnimSpeed={setAnimSpeed}
       />
     );
   }
@@ -60,7 +63,7 @@ export default function App() {
   }
 
   if (screen === 'single') {
-    return <SinglePlayerGame onBack={goMenu} />;
+    return <SinglePlayerGame onBack={goMenu} animSpeed={animSpeed} />;
   }
 
   if (screen === 'mobile-single-select') {

@@ -1,7 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { playClick, playHover } from '../utils/soundEffects.js';
 
-export default function MenuScreen({ onSinglePlayerPC, onSinglePlayerMobile, onBattlePC, onBattleMobile, onTutorial }) {
+export default function MenuScreen({
+  onSinglePlayerPC, onSinglePlayerMobile, onBattlePC, onBattleMobile, onTutorial,
+  animSpeed, onAnimSpeed,
+}) {
+  const [showSettings, setShowSettings] = useState(false);
+
   return (
     <div className="menu">
       <div className="menu-title">
@@ -24,7 +29,31 @@ export default function MenuScreen({ onSinglePlayerPC, onSinglePlayerMobile, onB
         <button className="btn btn-ghost" onMouseEnter={playHover} onClick={() => { playClick(); onTutorial(); }}>
           How to Play
         </button>
+        <button
+          className="btn btn-ghost"
+          onMouseEnter={playHover}
+          onClick={() => { playClick(); setShowSettings(s => !s); }}
+        >
+          Settings
+        </button>
       </div>
+
+      {showSettings && (
+        <div className="settings-panel" style={{ marginTop: 4 }}>
+          <span className="settings-label">Animation</span>
+          <div className="settings-options">
+            {['none', 'normal'].map(opt => (
+              <button
+                key={opt}
+                className={`settings-opt${animSpeed === opt ? ' active' : ''}`}
+                onClick={() => onAnimSpeed(opt)}
+              >
+                {opt === 'none' ? 'No Anim' : 'Anim'}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

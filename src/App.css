@@ -6,7 +6,7 @@
 
 :root {
   /* Cell size: shrinks to always fit the viewport (single player and battle) */
-  --cell-size: min(38px, calc((100svh - 140px) / 20), calc((100svw - 340px) / 16));
+  --cell-size: min(44px, calc((100svh - 60px) / 20), calc((100svw - 280px) / 16));
   --board-gap: 3px;
 
   /* Color palette */
@@ -879,9 +879,9 @@ kbd {
   width: 100%;
   height: 100svh;
   padding: 6px;
-  /* Override cell size: sized for a single board on mobile.
-     230px budget for header + dpad + banner; 105px for info panel + gaps */
-  --cell-size: min(38px, calc((100svh - 230px) / 20), calc((100svw - 105px) / 7));
+  /* Override cell size: no side info panel — board fills full width.
+     210px budget for header + dpad + gaps */
+  --cell-size: min(44px, calc((100svh - 210px) / 20), calc((100svw - 16px) / 7));
 }
 
 .mobile-battle-header {
@@ -927,6 +927,63 @@ kbd {
   gap: 8px;
   align-items: flex-start;
   flex: 1;
+}
+
+.mobile-game-area-full {
+  justify-content: center;
+}
+
+/* ===== MOBILE INFO STRIP (header) ===== */
+.mobile-info-strip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  justify-content: center;
+}
+
+.mobile-info-arrow {
+  font-size: 0.65rem;
+  color: var(--text-dim);
+  font-weight: 900;
+}
+
+.mobile-info-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  min-width: 36px;
+}
+
+.mobile-info-val {
+  font-size: 0.88rem;
+  font-weight: 900;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+
+.mobile-info-val.red { color: var(--danger); }
+
+.mobile-info-lbl {
+  font-size: 0.48rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.mobile-next-mini {
+  width: 26px;
+  height: 26px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.6rem;
+  font-weight: 900;
+  line-height: 1;
 }
 
 .mobile-restart-btn {

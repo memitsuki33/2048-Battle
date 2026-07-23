@@ -1,9 +1,8 @@
 import React, { useEffect, useRef, useCallback } from 'react';
 import { useGameEngine } from '../hooks/useGameEngine.js';
 import GameBoard from './GameBoard.jsx';
-import InfoPanel from './InfoPanel.jsx';
 import DPad from './DPad.jsx';
-import { formatValue, formatScore } from '../utils/colors.js';
+import { getTileColor, formatValue, formatScore } from '../utils/colors.js';
 import { playGarbageSend, playGarbageReceive } from '../utils/soundEffects.js';
 
 export default function MobileBattleGame({ ws, level, playerIndex, onBack }) {
@@ -93,18 +92,38 @@ export default function MobileBattleGame({ ws, level, playerIndex, onBack }) {
     else resultText = 'YOU LOSE';
   }
 
+  const nextColor = getTileColor(engine.state.nextPieceValue);
+
   return (
     <div className="mobile-battle">
       {/* Header */}
       <div className="mobile-battle-header">
         <button className="btn btn-ghost btn-sm" onClick={onBack}>Back</button>
-        <span className="mobile-battle-title">
-          {playerIndex === 0 ? 'P1' : 'P2'} — Level {level}
-        </span>
+        <div className="mobile-info-strip">
+          <span className="mobile-info-arrow">◄</span>
+          <div className="mobile-info-item">
+            <span className="mobile-info-val">{formatScore(engine.state.score)}</span>
+            <span className="mobile-info-lbl">SCORE</span>
+          </div>
+          <div className="mobile-info-item">
+            <span className="mobile-info-val red">{engine.state.level}</span>
+            <span className="mobile-info-lbl">LEVEL</span>
+          </div>
+          <div className="mobile-info-item">
+            <div
+              className="mobile-next-mini"
+              style={{ backgroundColor: nextColor.bg, color: nextColor.text }}
+            >
+              {formatValue(engine.state.nextPieceValue)}
+            </div>
+            <span className="mobile-info-lbl">NEXT</span>
+          </div>
+          <span className="mobile-info-arrow">►</span>
+        </div>
         <div className="mobile-opp-status">
           <span className="mobile-opp-label">Opp</span>
           <span className={`mobile-opp-score ${oppDead ? 'red' : ''}`}>
-            {oppDead ? 'OUT' : formatValue(oppState.score)}
+            {oppDead ? 'OUT' : formatScore(oppState.score)}
           </span>
         </div>
       </div>
@@ -117,13 +136,8 @@ export default function MobileBattleGame({ ws, level, playerIndex, onBack }) {
         </div>
       )}
 
-      {/* Game area */}
-      <div className="mobile-game-area">
-        <InfoPanel
-          state={engine.state}
-          mode="battle"
-          pendingGarbage={engine.state.pendingIncoming}
-        />
+      {/* Game area — board only */}
+      <div className="mobile-game-area mobile-game-area-full">
         <GameBoard state={engine.state} animSpeed="normal" />
       </div>
 

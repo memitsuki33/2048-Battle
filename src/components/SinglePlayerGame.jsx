@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback, useState } from 'react';
+import React, { useEffect, useCallback } from 'react';
 import { useGameEngine } from '../hooks/useGameEngine.js';
 import GameBoard from './GameBoard.jsx';
 import InfoPanel from './InfoPanel.jsx';
@@ -11,7 +11,7 @@ function isMobile() {
   );
 }
 
-export default function SinglePlayerGame({ onBack }) {
+export default function SinglePlayerGame({ onBack, animSpeed = 'normal' }) {
   if (isMobile()) {
     return (
       <div className="mobile-pc-block">
@@ -25,12 +25,11 @@ export default function SinglePlayerGame({ onBack }) {
       </div>
     );
   }
+
   const { state, moveLeft, moveRight, softDrop, hardDrop, restart } = useGameEngine({
     startLevel: 0,
     mode: 'single',
   });
-
-  const [animSpeed, setAnimSpeed] = useState('normal');
 
   // Checkpoint level: floor to nearest 10 (e.g. level 17 → continue from 10)
   const checkpointLevel = Math.floor(state.level / 10) * 10;
@@ -67,44 +66,36 @@ export default function SinglePlayerGame({ onBack }) {
   }, [handleKey]);
 
   return (
-    <div className="game-wrapper">
-      <div className="player-section">
-        <div className="back-row">
-          <button className="btn btn-ghost btn-sm" onClick={onBack}>Back</button>
-          <span className="player-label">Single Player</span>
-          {/* Inline animation toggle */}
-          <div style={{ display: 'flex', gap: 4 }}>
-            {['none', 'normal'].map(opt => (
-              <button
-                key={opt}
-                className={`settings-opt${animSpeed === opt ? ' active' : ''}`}
-                onClick={() => setAnimSpeed(opt)}
-                style={{ fontSize: '0.65rem', padding: '3px 8px' }}
-              >
-                {opt === 'none' ? 'No Anim' : 'Anim'}
+    <>
+      {/* Back button — fixed top-left, never affects board layout */}
+      <button
+        className="btn btn-ghost btn-sm"
+        style={{ position: 'fixed', top: 12, left: 12, zIndex: 50 }}
+        onClick={onBack}
+      >
+        Back
+      </button>
+
+      <div className="game-wrapper">
+        <div className="player-section">
+          <GameBoard state={state} animSpeed={animSpeed} />
+
+          {state.gameOver && (
+            <div style={{ position: 'fixed', bottom: 24, left: '50%', transform: 'translateX(-50%)', display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'center', zIndex: 50 }}>
+              <button className="btn btn-primary btn-sm" onClick={() => restart(0)}>
+                Restart — Level 0
               </button>
-            ))}
-          </div>
+              {checkpointLevel > 0 && (
+                <button className="btn btn-secondary btn-sm" onClick={() => restart(checkpointLevel)}>
+                  Continue — Level {checkpointLevel}
+                </button>
+              )}
+            </div>
+          )}
         </div>
 
-        <GameBoard state={state} animSpeed={animSpeed} />
-
-        {/* Fixed so these buttons never affect the board's position */}
-        {state.gameOver && (
-          <div style={{ position: 'fixed', bottom: 24, left: '50%', transform: 'translateX(-50%)', display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'center', zIndex: 50 }}>
-            <button className="btn btn-primary btn-sm" onClick={() => restart(0)}>
-              Restart — Level 0
-            </button>
-            {checkpointLevel > 0 && (
-              <button className="btn btn-secondary btn-sm" onClick={() => restart(checkpointLevel)}>
-                Continue — Level {checkpointLevel}
-              </button>
-            )}
-          </div>
-        )}
+        <InfoPanel state={state} mode="single" />
       </div>
-
-      <InfoPanel state={state} mode="single" />
-    </div>
+    </>
   );
 }

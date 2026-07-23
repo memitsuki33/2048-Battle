@@ -55,11 +55,25 @@ function bfsGroup(board, startRow, startCol, visited) {
 }
 
 // Process all merges (with cascades). Returns { board, score, chainCount }.
-export function processMerges(board) {
+//
+// placedRow/placedCol: position of the tile just locked onto the board.
+// - If the placed tile is part of a group, the merge result lands at the placed
+//   position (so dropping left-of-a-match keeps the result on the left, etc.).
+// - For cascade merges (subsequent iterations), the result lands at whichever
+//   cell in the group was NOT itself a result of a previous merge — i.e. at the
+//   pre-existing tile, not the freshly merged one.
+export function processMerges(board, placedRow = -1, placedCol = -1) {
   let current = board.map(r => [...r]);
   let totalScore = 0;
   let chainCount = 0;
   let anyMerge = true;
+
+  // Tracks cells that are merge results so cascades prefer the OTHER tile.
+  const resultCells = new Set();
+
+  // Mutable copy so we can clear after first use.
+  let pRow = placedRow;
+  let pCol = placedCol;
 
   while (anyMerge) {
     anyMerge = false;
@@ -99,23 +113,38 @@ export function processMerges(board) {
         }
       }
 
-      // Find lowest row in group
-      let maxRow = -1;
-      for (const [r] of group) {
-        if (r > maxRow) maxRow = r;
-      }
-      // Among bottom cells, pick the middle one
-      const bottomCells = group.filter(([r]) => r === maxRow);
-      bottomCells.sort((a, b) => a[1] - b[1]);
-      const targetCell = bottomCells[Math.floor(bottomCells.length / 2)];
+      // ── Target cell selection ──────────────────────────────────────────────
+      // Priority 1 (first merge only): placed cell → result lands where you dropped
+      // Priority 2 (cascades): prefer cells that are NOT a previous merge result
+      // Priority 3 (fallback): bottommost row, then leftmost column
+      let targetCell = null;
 
-      // Clear all cells in group
-      for (const [gr, gc] of group) {
-        next[gr][gc] = 0;
+      if (pRow >= 0 && pCol >= 0) {
+        const inGroup = group.find(([r, c]) => r === pRow && c === pCol);
+        if (inGroup) {
+          targetCell = inGroup;
+          // Clear so this priority only applies once.
+          pRow = -1;
+          pCol = -1;
+        }
       }
 
-      // Place merged tile
+      if (!targetCell) {
+        // Prefer cells that were not results of a previous cascade step.
+        const preferred = group.filter(([r, c]) => !resultCells.has(r * COLS + c));
+        const candidates = preferred.length > 0 ? preferred : group;
+
+        let maxRow = -1;
+        for (const [r] of candidates) if (r > maxRow) maxRow = r;
+        const bottom = candidates.filter(([r]) => r === maxRow);
+        bottom.sort((a, b) => a[1] - b[1]);
+        targetCell = bottom[0]; // leftmost among bottommost
+      }
+
+      // Clear all cells in group, then place merged tile.
+      for (const [gr, gc] of group) next[gr][gc] = 0;
       next[targetCell[0]][targetCell[1]] = newValue;
+      resultCells.add(targetCell[0] * COLS + targetCell[1]);
       totalScore += newValue;
     }
 
@@ -310,8 +339,8 @@ function lockPiece(state) {
     newBoard[currentPiece.row][currentPiece.col] = currentPiece.value;
   }
 
-  // Process merges + cascades
-  const { board: mergedBoard, score: mergeScore, chainCount } = processMerges(newBoard);
+  // Process merges + cascades (pass placed position for directional merge)
+  const { board: mergedBoard, score: mergeScore, chainCount } = processMerges(newBoard, currentPiece.row, currentPiece.col);
 
   // Consecutive-merge streak: increments when this piece caused a merge, resets otherwise
   const newStreak = mergeScore > 0 ? mergeStreak + 1 : 0;

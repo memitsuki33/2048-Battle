@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useGameEngine } from '../hooks/useGameEngine.js';
 import GameBoard from './GameBoard.jsx';
-import InfoPanel from './InfoPanel.jsx';
 import DPad from './DPad.jsx';
+import { getTileColor, formatValue, formatScore } from '../utils/colors.js';
 
 export default function MobileSinglePlayerGame({ onBack }) {
   const { state, moveLeft, moveRight, softDrop, hardDrop, restart } = useGameEngine({
@@ -11,22 +11,38 @@ export default function MobileSinglePlayerGame({ onBack }) {
   });
 
   const checkpointLevel = Math.floor(state.level / 10) * 10;
+  const nextColor = getTileColor(state.nextPieceValue);
 
   return (
     <div className="mobile-battle">
       {/* Header */}
       <div className="mobile-battle-header">
         <button className="btn btn-ghost btn-sm" onClick={onBack}>Back</button>
-        <span className="mobile-battle-title">Single Player</span>
-        <div className="mobile-opp-status">
-          <span className="mobile-opp-label">Level</span>
-          <span className="mobile-opp-score">{state.level}</span>
+        <div className="mobile-info-strip">
+          <span className="mobile-info-arrow">◄</span>
+          <div className="mobile-info-item">
+            <span className="mobile-info-val">{formatScore(state.score)}</span>
+            <span className="mobile-info-lbl">SCORE</span>
+          </div>
+          <div className="mobile-info-item">
+            <span className="mobile-info-val red">{state.level}</span>
+            <span className="mobile-info-lbl">LEVEL</span>
+          </div>
+          <div className="mobile-info-item">
+            <div
+              className="mobile-next-mini"
+              style={{ backgroundColor: nextColor.bg, color: nextColor.text }}
+            >
+              {formatValue(state.nextPieceValue)}
+            </div>
+            <span className="mobile-info-lbl">NEXT</span>
+          </div>
+          <span className="mobile-info-arrow">►</span>
         </div>
       </div>
 
-      {/* Game area */}
-      <div className="mobile-game-area">
-        <InfoPanel state={state} mode="single" />
+      {/* Game area — board only, no side panel */}
+      <div className="mobile-game-area mobile-game-area-full">
         <GameBoard state={state} animSpeed="normal" />
       </div>
 
