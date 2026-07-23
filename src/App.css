@@ -5,8 +5,13 @@
 }
 
 :root {
-  /* Cell size: shrinks to always fit the viewport (single player and battle) */
-  --cell-size: min(44px, calc((100svh - 60px) / 20), calc((100svw - 280px) / 16));
+  /* Cell size: shrinks to always fit the viewport (single player and battle).
+   * Height budget: back-row (~36px) + player-label (~18px) + gaps (~20px)
+   *   + board internal overhead (19×3 gap + 2×3 pad + 2×2 border = 67px) ≈ 141px → 150px.
+   * Width budget: 2 info panels (~220px) + VS (~60px) + board h-overhead + gaps ≈ 320px.
+   * Dividing by 14 (2 boards × 7 cols) for width, 20 rows for height.
+   */
+  --cell-size: min(44px, calc((100svh - 150px) / 20), calc((100svw - 320px) / 14));
   --board-gap: 3px;
 
   /* Color palette */
