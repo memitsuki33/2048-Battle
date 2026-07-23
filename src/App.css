@@ -875,62 +875,45 @@ kbd {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
+  gap: 4px;
   width: 100%;
   height: 100svh;
-  padding: 6px;
-  /* Override cell size: no side info panel — board fills full width.
-     210px budget for header + dpad + gaps */
-  --cell-size: min(44px, calc((100svh - 210px) / 20), calc((100svw - 16px) / 7));
+  padding: 4px 4px 6px;
+  /*
+   * No header — board fills everything above the bottom bar.
+   * Bottom bar = info row (~44px) + dpad (~68px) + gaps (~18px) ≈ 130px.
+   */
+  --cell-size: min(52px, calc((100svh - 130px) / 20), calc((100svw - 12px) / 7));
 }
-
-.mobile-battle-header {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  width: 100%;
-  justify-content: space-between;
-}
-
-.mobile-battle-title {
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  color: var(--text-dim);
-}
-
-.mobile-opp-status {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-}
-
-.mobile-opp-label {
-  font-size: 0.56rem;
-  font-weight: 700;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-  color: var(--text-dim);
-}
-
-.mobile-opp-score {
-  font-size: 0.9rem;
-  font-weight: 900;
-  color: var(--text);
-}
-
-.mobile-opp-score.red { color: var(--danger); }
 
 .mobile-game-area {
   display: flex;
   gap: 8px;
   align-items: flex-start;
   flex: 1;
+  min-height: 0;
 }
 
 .mobile-game-area-full {
   justify-content: center;
+  align-items: flex-start;
+}
+
+/* Info row: back + score/level/next, sits between board and dpad */
+.mobile-bottom-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+/* Controls row: dpad or restart buttons */
+.mobile-controls-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 68px;
 }
 
 /* ===== MOBILE INFO STRIP (header) ===== */

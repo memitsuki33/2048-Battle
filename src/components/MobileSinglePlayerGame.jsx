@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useGameEngine } from '../hooks/useGameEngine.js';
 import GameBoard from './GameBoard.jsx';
 import DPad from './DPad.jsx';
@@ -15,8 +15,14 @@ export default function MobileSinglePlayerGame({ onBack }) {
 
   return (
     <div className="mobile-battle">
-      {/* Header */}
-      <div className="mobile-battle-header">
+
+      {/* Board — fills all available vertical space */}
+      <div className="mobile-game-area mobile-game-area-full">
+        <GameBoard state={state} animSpeed="normal" />
+      </div>
+
+      {/* Info row: back + score + level + next */}
+      <div className="mobile-bottom-info">
         <button className="btn btn-ghost btn-sm" onClick={onBack}>Back</button>
         <div className="mobile-info-strip">
           <div className="mobile-info-item">
@@ -39,13 +45,8 @@ export default function MobileSinglePlayerGame({ onBack }) {
         </div>
       </div>
 
-      {/* Game area — board only, no side panel */}
-      <div className="mobile-game-area mobile-game-area-full">
-        <GameBoard state={state} animSpeed="normal" />
-      </div>
-
-      {/* D-pad / restart — fixed height so the board never shifts */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 148 }}>
+      {/* Controls row */}
+      <div className="mobile-controls-row">
         {state.gameOver ? (
           <div style={{ display: 'flex', gap: 8 }}>
             <button className="btn btn-primary btn-sm" onClick={() => restart(0)}>
