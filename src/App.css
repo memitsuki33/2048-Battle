@@ -880,10 +880,16 @@ kbd {
   height: 100svh;
   padding: 4px 4px 6px;
   /*
-   * No header — board fills everything above the bottom bar.
-   * Bottom bar = info row (~44px) + dpad (~68px) + gaps (~18px) ≈ 130px.
+   * Budget breakdown (all subtracted before dividing):
+   *   board gaps/padding/border : 19×3 + 2×3 + 2×2 = 67px
+   *   info row                  : ~36px
+   *   dpad row                  : ~68px
+   *   container padding+gaps    : ~18px
+   *   total                     : ~189px → use 192px
+   *
+   * Width: board h-overhead = 6×3 + 2×3 + 2×2 = 28px + 8px padding = 36px
    */
-  --cell-size: min(52px, calc((100svh - 130px) / 20), calc((100svw - 12px) / 7));
+  --cell-size: min(52px, calc((100svh - 192px) / 20), calc((100svw - 36px) / 7));
 }
 
 .mobile-game-area {
