@@ -63,7 +63,7 @@ export default function App() {
   }
 
   if (screen === 'single') {
-    return <SinglePlayerGame onBack={goMenu} animSpeed={animSpeed} />;
+    return <SinglePlayerGame onBack={goMenu} animSpeed={animSpeed} onAnimSpeed={setAnimSpeed} />;
   }
 
   if (screen === 'mobile-single-select') {
@@ -77,7 +77,7 @@ export default function App() {
   }
 
   if (screen === 'mobile-single') {
-    return <MobileSinglePlayerGame onBack={goMenu} />;
+    return <MobileSinglePlayerGame onBack={goMenu} animSpeed={animSpeed} onAnimSpeed={setAnimSpeed} />;
   }
 
   if (screen === 'battle' && gameConfig) {

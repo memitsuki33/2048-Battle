@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { playClick, playHover } from '../utils/soundEffects.js';
+import SettingsModal from './SettingsModal.jsx';
 
 export default function MenuScreen({
   onSinglePlayerPC, onSinglePlayerMobile, onBattlePC, onBattleMobile, onTutorial,
@@ -29,30 +30,17 @@ export default function MenuScreen({
         <button className="btn btn-ghost" onMouseEnter={playHover} onClick={() => { playClick(); onTutorial(); }}>
           How to Play
         </button>
-        <button
-          className="btn btn-ghost"
-          onMouseEnter={playHover}
-          onClick={() => { playClick(); setShowSettings(s => !s); }}
-        >
+        <button className="btn btn-ghost" onMouseEnter={playHover} onClick={() => { playClick(); setShowSettings(true); }}>
           Settings
         </button>
       </div>
 
       {showSettings && (
-        <div className="settings-panel" style={{ marginTop: 4 }}>
-          <span className="settings-label">Animation</span>
-          <div className="settings-options">
-            {['none', 'normal'].map(opt => (
-              <button
-                key={opt}
-                className={`settings-opt${animSpeed === opt ? ' active' : ''}`}
-                onClick={() => onAnimSpeed(opt)}
-              >
-                {opt === 'none' ? 'No Anim' : 'Anim'}
-              </button>
-            ))}
-          </div>
-        </div>
+        <SettingsModal
+          onClose={() => setShowSettings(false)}
+          animSpeed={animSpeed}
+          onAnimSpeed={onAnimSpeed}
+        />
       )}
     </div>
   );

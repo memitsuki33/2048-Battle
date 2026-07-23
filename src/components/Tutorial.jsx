@@ -109,10 +109,11 @@ export default function Tutorial({ onBack }) {
 
         {page === 0 && (
           <div className="tutorial-content">
-            <p>The board is <strong>6 columns wide</strong> and <strong>15 rows tall</strong>.</p>
             <p>
-              Numbered tiles fall from the top — one at a time. Move the tile left or right,
-              then drop it. Tiles with the same value that touch each other <strong>automatically merge</strong>.
+              The board is <strong>7 columns wide</strong> and <strong>20 rows tall</strong>.
+              Numbered tiles fall one at a time from the top — move them left or right,
+              then drop. Tiles with the same value that touch each other
+              (horizontally or vertically) <strong>automatically merge</strong>.
             </p>
             <div style={{ display: 'flex', gap: 6, marginTop: 16 }}>
               {[2, 4, 8, 16, 32, 64].map(v => <Tile key={v} value={v} size={44} />)}
@@ -121,8 +122,13 @@ export default function Tutorial({ onBack }) {
               {[128, 256, 512, 1024, 2048, 4096].map(v => <Tile key={v} value={v} size={44} />)}
             </div>
             <p style={{ marginTop: 14, color: 'var(--text-dim)', fontSize: '0.82rem' }}>
-              Colors cycle through the spectrum from red (2) to near-black (65K),
-              then repeat. The tile you drop next is always shown in the side panel.
+              A <strong>ghost outline</strong> shows where the tile will land before you drop it.
+              The <strong>next tile</strong> is previewed in the side panel so you can plan ahead.
+              Colors cycle from red (2) through the spectrum all the way to 65K+.
+            </p>
+            <p style={{ color: 'var(--text-dim)', fontSize: '0.82rem' }}>
+              Lower-value tiles spawn more often — the higher the tile, the rarer it appears.
+              This keeps the game manageable at high levels.
             </p>
           </div>
         )}
@@ -130,10 +136,9 @@ export default function Tutorial({ onBack }) {
         {page === 1 && (
           <div className="tutorial-content">
             <p>
-              When <strong>2 or more same-value tiles touch</strong> (horizontally or vertically),
-              they instantly merge into a single tile. The merged tile appears at the
-              bottom-most cell of the group, then gravity pulls remaining tiles down — which
-              can trigger more merges automatically.
+              When <strong>2 or more same-value tiles touch</strong>, they instantly merge.
+              The merged tile appears <strong>where you dropped yours</strong> — drop left
+              of a match and the result stays on the left; drop right and it stays on the right.
             </p>
             <div className="merge-examples">
               <MergeExample
@@ -153,8 +158,9 @@ export default function Tutorial({ onBack }) {
               />
             </div>
             <p style={{ marginTop: 12, color: 'var(--text-dim)', fontSize: '0.82rem' }}>
-              You score points equal to the value of every tile created by a merge.
-              Bigger merges and longer chains score exponentially more.
+              After a merge, gravity pulls all tiles down. If newly settled tiles form another
+              matching group, they merge too — automatically, for free. You score points equal
+              to the value of every tile created.
             </p>
           </div>
         )}
@@ -162,7 +168,7 @@ export default function Tutorial({ onBack }) {
         {page === 2 && (
           <div className="tutorial-content">
             <p>
-              The more tiles in a connected group, the bigger the result:
+              Larger connected groups produce exponentially bigger tiles — and bigger scores:
             </p>
             <div className="merge-examples">
               <MergeExample
@@ -182,22 +188,22 @@ export default function Tutorial({ onBack }) {
               />
             </div>
             <p style={{ color: 'var(--text-dim)', fontSize: '0.8rem' }}>
-              Formula: N tiles of value V → one tile of <strong>V × 2^(N-1)</strong>
+              Formula: N tiles of value V → one tile of <strong>V × 2^(N−1)</strong>
             </p>
             <p style={{ marginTop: 10 }}>
-              After a merge, gravity drops remaining tiles. If those tiles form new groups,
-              they merge too — a <strong>chain combo</strong>. Each step of the chain is
-              counted separately and can send garbage rows in battle mode.
+              Each step in a cascade is a <strong>chain combo</strong>. Chains multiply your
+              score and — in battle mode — send garbage rows to your opponent.
+              Set up boards that cascade 3, 4, or 5 steps to dominate.
             </p>
           </div>
         )}
 
         {page === 3 && (
           <div className="tutorial-content">
-            <p><strong>Level 0</strong> — tiles never fall on their own. Drop them manually at your own pace.</p>
-            <p><strong>Level 1+</strong> — tiles auto-drop on a timer that gets faster each level:</p>
+            <p><strong>Level 0</strong> — tiles never fall on their own. Drop them at your own pace, great for learning.</p>
+            <p><strong>Level 1+</strong> — tiles auto-drop on a timer. Each level shaves time off the interval:</p>
             <div className="level-table">
-              {[1, 5, 10, 15, 20, 25, 30].map(lv => {
+              {[1, 5, 10, 20, 30, 40, 50, 60].map(lv => {
                 const ms = getDropInterval(lv);
                 const maxMs = getDropInterval(1);
                 return (
@@ -212,12 +218,10 @@ export default function Tutorial({ onBack }) {
               })}
             </div>
             <p style={{ marginTop: 12, color: 'var(--text-dim)', fontSize: '0.82rem' }}>
-              In <strong>single player</strong>, your level rises automatically as your score grows.
-              If you game over, you can restart from Level 0 or from your last checkpoint
-              (rounded down to the nearest 10).
-            </p>
-            <p style={{ color: 'var(--text-dim)', fontSize: '0.82rem' }}>
-              In <strong>battle</strong>, both players share the same starting level chosen before the match.
+              Your level rises automatically as your score grows. If you want to retry a
+              section, open <strong>Settings</strong> and choose <strong>Load Level</strong> —
+              it drops you back to the nearest lower multiple of 5 (e.g. level 12 → load level 10).
+              <strong> Reset</strong> always takes you back to level 0.
             </p>
           </div>
         )}
@@ -225,18 +229,19 @@ export default function Tutorial({ onBack }) {
         {page === 4 && (
           <div className="tutorial-content">
             <p>
-              Two players on the same keyboard compete on side-by-side boards.
-              The first player whose board fills up <strong>loses instantly</strong> — the other wins.
+              <strong>PC battle</strong> — two players share one keyboard on side-by-side boards.
+              <strong> Mobile battle</strong> — play online against anyone with a room code.
+              The first player whose board fills to the top <strong>loses</strong>.
             </p>
             <p style={{ marginTop: 10 }}>
-              Build chain combos to attack your opponent. Every <strong>3 combo steps</strong> you
-              trigger sends <strong>1 garbage row</strong> to their board:
+              Build chain combos to attack. Every <strong>3 combo steps</strong> sends
+              <strong> 1 garbage row</strong> to the opponent's board:
             </p>
             <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start', marginTop: 10 }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
                 {[3, 6, 9, 12].map(c => (
                   <div key={c} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <span style={{ width: 36, fontWeight: 800, fontSize: '0.82rem', color: 'var(--accent)' }}>{c} chain</span>
+                    <span style={{ width: 44, fontWeight: 800, fontSize: '0.82rem', color: 'var(--accent)' }}>{c}-chain</span>
                     <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>→</span>
                     <span style={{ fontSize: '0.78rem', color: 'var(--text)', fontWeight: 700 }}>
                       {Math.floor(c / 3)} garbage row{Math.floor(c / 3) !== 1 ? 's' : ''}
@@ -245,11 +250,11 @@ export default function Tutorial({ onBack }) {
                 ))}
               </div>
               <div style={{ flex: 1, padding: '12px 14px', background: 'var(--bg)', borderRadius: 6, border: '1px solid var(--border)', fontSize: '0.78rem', color: 'var(--text-dim)', lineHeight: 1.8 }}>
-                <strong style={{ color: 'var(--text)' }}>Garbage rows</strong> push the opponent's
-                board up from the bottom. They are <GarbageCell size={14} /> gray and un-mergeable,
-                with one random gap so they can escape.
-                <br />
-                Garbage lands the moment they place their next tile.
+                <strong style={{ color: 'var(--text)' }}>Garbage rows</strong> rise from
+                the bottom, pushing the board up. They are <GarbageCell size={14} /> gray
+                and cannot merge — but each row has one random gap tile. Merge that
+                gap tile with a match and the entire garbage row disappears.
+                Garbage lands on the opponent's <em>next</em> piece placement.
               </div>
             </div>
           </div>
@@ -259,7 +264,7 @@ export default function Tutorial({ onBack }) {
           <div className="tutorial-content">
             <div className="controls-table">
               <div className="controls-section">
-                <div className="controls-section-title p1">Single Player / Player 1</div>
+                <div className="controls-section-title p1">Single Player / Player 1 (PC)</div>
                 <div className="controls-row">
                   <kbd>←</kbd><kbd>A</kbd> <span>Move left</span>
                 </div>
@@ -267,14 +272,14 @@ export default function Tutorial({ onBack }) {
                   <kbd>→</kbd><kbd>D</kbd> <span>Move right</span>
                 </div>
                 <div className="controls-row">
-                  <kbd>↓</kbd><kbd>S</kbd> <span>Soft drop — move down one step</span>
+                  <kbd>↓</kbd><kbd>S</kbd> <span>Soft drop — one step down</span>
                 </div>
                 <div className="controls-row">
                   <kbd>↑</kbd><kbd>W</kbd><kbd>Space</kbd> <span>Hard drop — instant to bottom</span>
                 </div>
               </div>
               <div className="controls-section">
-                <div className="controls-section-title p2">Player 2 (Battle only)</div>
+                <div className="controls-section-title p2">Player 2 (PC Battle only)</div>
                 <div className="controls-row">
                   <kbd>←</kbd> <span>Move left</span>
                 </div>
@@ -285,13 +290,20 @@ export default function Tutorial({ onBack }) {
                   <kbd>↓</kbd> <span>Soft drop</span>
                 </div>
                 <div className="controls-row">
-                  <kbd>↑</kbd><kbd>Space</kbd> <span>Hard drop</span>
+                  <kbd>↑</kbd> <span>Hard drop</span>
                 </div>
               </div>
               <div className="controls-section">
-                <div className="controls-section-title" style={{ color: 'var(--text-dim)' }}>Battle rematch</div>
+                <div className="controls-section-title" style={{ color: '#16a34a' }}>Mobile</div>
                 <div className="controls-row">
-                  <kbd>Enter</kbd> <span>Rematch after a game ends</span>
+                  <span style={{ color: 'var(--text)' }}>
+                    Use the on-screen buttons at the bottom:
+                    <strong style={{ color: 'var(--accent)' }}> ▲▲</strong> hard drop,
+                    <strong> ◀</strong> left,
+                    <strong> ▼</strong> soft drop,
+                    <strong> ▶</strong> right.
+                    Open <strong>Settings</strong> to reset or load a level.
+                  </span>
                 </div>
               </div>
             </div>
