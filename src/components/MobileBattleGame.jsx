@@ -100,7 +100,6 @@ export default function MobileBattleGame({ ws, level, playerIndex, onBack }) {
       <div className="mobile-battle-header">
         <button className="btn btn-ghost btn-sm" onClick={onBack}>Back</button>
         <div className="mobile-info-strip">
-          <span className="mobile-info-arrow">◄</span>
           <div className="mobile-info-item">
             <span className="mobile-info-val">{formatScore(engine.state.score)}</span>
             <span className="mobile-info-lbl">SCORE</span>
@@ -118,7 +117,6 @@ export default function MobileBattleGame({ ws, level, playerIndex, onBack }) {
             </div>
             <span className="mobile-info-lbl">NEXT</span>
           </div>
-          <span className="mobile-info-arrow">►</span>
         </div>
         <div className="mobile-opp-status">
           <span className="mobile-opp-label">Opp</span>

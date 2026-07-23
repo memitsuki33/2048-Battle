@@ -4,8 +4,7 @@ import { playMove, playHardDrop } from '../utils/soundEffects.js';
 const COOLDOWN_MS = 150;
 
 // Touch-friendly D-pad for mobile controls.
-// Uses onTouchStart for zero-delay response on mobile.
-// Each button has a 100ms cooldown to prevent accidental double-fires.
+// Single horizontal row: [Hard Drop] [Left] [Soft Drop] [Right]
 export default function DPad({ onLeft, onRight, onSoftDrop, onHardDrop }) {
   const lastFired = useRef({});
 
@@ -18,48 +17,39 @@ export default function DPad({ onLeft, onRight, onSoftDrop, onHardDrop }) {
   }, []);
 
   return (
-    <div className="dpad">
-      {/* Top row: hard drop */}
-      <div className="dpad-row">
-        <div className="dpad-spacer" />
-        <button
-          className="dpad-btn dpad-up"
-          onTouchStart={makeHandler(() => { playHardDrop(); onHardDrop(); }, 'up')}
-          onClick={makeHandler(() => { playHardDrop(); onHardDrop(); }, 'up')}
-          aria-label="Hard drop"
-        >
-          ▲▲
-        </button>
-        <div className="dpad-spacer" />
-      </div>
-
-      {/* Middle row: left, soft drop, right */}
-      <div className="dpad-row">
-        <button
-          className="dpad-btn dpad-left"
-          onTouchStart={makeHandler(() => { playMove(); onLeft(); }, 'left')}
-          onClick={makeHandler(() => { playMove(); onLeft(); }, 'left')}
-          aria-label="Move left"
-        >
-          ◀
-        </button>
-        <button
-          className="dpad-btn dpad-center"
-          onTouchStart={makeHandler(onSoftDrop, 'down')}
-          onClick={makeHandler(onSoftDrop, 'down')}
-          aria-label="Soft drop"
-        >
-          ▼
-        </button>
-        <button
-          className="dpad-btn dpad-right"
-          onTouchStart={makeHandler(() => { playMove(); onRight(); }, 'right')}
-          onClick={makeHandler(() => { playMove(); onRight(); }, 'right')}
-          aria-label="Move right"
-        >
-          ▶
-        </button>
-      </div>
+    <div className="dpad dpad-horizontal">
+      <button
+        className="dpad-btn dpad-up"
+        onTouchStart={makeHandler(() => { playHardDrop(); onHardDrop(); }, 'up')}
+        onClick={makeHandler(() => { playHardDrop(); onHardDrop(); }, 'up')}
+        aria-label="Hard drop"
+      >
+        ▲▲
+      </button>
+      <button
+        className="dpad-btn"
+        onTouchStart={makeHandler(() => { playMove(); onLeft(); }, 'left')}
+        onClick={makeHandler(() => { playMove(); onLeft(); }, 'left')}
+        aria-label="Move left"
+      >
+        ◀
+      </button>
+      <button
+        className="dpad-btn"
+        onTouchStart={makeHandler(onSoftDrop, 'down')}
+        onClick={makeHandler(onSoftDrop, 'down')}
+        aria-label="Soft drop"
+      >
+        ▼
+      </button>
+      <button
+        className="dpad-btn"
+        onTouchStart={makeHandler(() => { playMove(); onRight(); }, 'right')}
+        onClick={makeHandler(() => { playMove(); onRight(); }, 'right')}
+        aria-label="Move right"
+      >
+        ▶
+      </button>
     </div>
   );
 }

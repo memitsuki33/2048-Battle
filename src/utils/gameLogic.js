@@ -158,7 +158,11 @@ export function processMerges(board, placedRow = -1, placedCol = -1) {
 //
 // Candidates: all distinct positive tile values currently on the board,
 // EXCLUDING the board's current maximum (the highest tile in play).
-// Each candidate has equal probability.
+//
+// Probability is weighted so lower-value tiles appear more often:
+//   pool sorted ascending → index 0 (smallest) gets weight 2^(n-1),
+//   index 1 gets 2^(n-2), …, index n-1 (largest) gets 2^0 = 1.
+// This gives a geometric decay — each tier is half as likely as the one below.
 //
 // Edge cases:
 //   - Empty board → return 2.
@@ -186,9 +190,18 @@ export function getNextPieceValue(board) {
   // Only one distinct value was present
   if (seen.size === 0) return Math.max(2, maxVal / 2);
 
-  // Equal-chance pick from remaining distinct values
-  const pool = Array.from(seen);
-  return pool[Math.floor(Math.random() * pool.length)];
+  // Weighted pick: sort ascending, assign geometric weights (lower = heavier)
+  const pool = Array.from(seen).sort((a, b) => a - b);
+  const n = pool.length;
+  // weight[i] = 2^(n-1-i): smallest tile gets highest weight
+  const weights = pool.map((_, i) => Math.pow(2, n - 1 - i));
+  const total = weights.reduce((s, w) => s + w, 0);
+  let rand = Math.random() * total;
+  for (let i = 0; i < pool.length; i++) {
+    rand -= weights[i];
+    if (rand <= 0) return pool[i];
+  }
+  return pool[pool.length - 1]; // fallback
 }
 
 // Returns the pool of values to use for garbage gap tiles.
