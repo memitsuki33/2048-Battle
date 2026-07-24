@@ -27,7 +27,7 @@ export default function SinglePlayerGame({ onBack, animSpeed = 'normal', onAnimS
     );
   }
 
-  const { state, moveLeft, moveRight, softDrop, hardDrop, restart } = useGameEngine({
+  const { state, moveLeft, moveRight, softDrop, hardDrop, hold, restart } = useGameEngine({
     startLevel: 0,
     mode: 'single',
   });
@@ -53,11 +53,12 @@ export default function SinglePlayerGame({ onBack, animSpeed = 'normal', onAnimS
         case 'ArrowUp':
         case 'w': case 'W':
         case ' ':
-        case 'r': case 'R':
           playHardDrop(); hardDrop(); break;
+        case 'r': case 'R':
+          hold(); break;
       }
     },
-    [showColorGuide, state.gameOver, moveLeft, moveRight, softDrop, hardDrop]
+    [showColorGuide, state.gameOver, moveLeft, moveRight, softDrop, hardDrop, hold]
   );
 
   useEffect(() => {

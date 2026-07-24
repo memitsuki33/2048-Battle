@@ -205,6 +205,8 @@ export function createInitialState(startLevel) {
     mergeStreak: 0,
     streakMilestone: 0,
     lastChainCount: 0,
+    heldValue: null,
+    holdUsed: false,
   };
 }
 
@@ -267,6 +269,31 @@ export function gameReducer(state, action) {
       };
     }
 
+    case 'HOLD': {
+      if (state.holdUsed || !state.currentPiece) return state;
+      const { currentPiece, heldValue, nextPieceValue, board } = state;
+      const spawnCol = Math.floor(COLS / 2);
+      if (heldValue === null) {
+        // Nothing held — stash current, promote next
+        const newNext = getNextPieceValue(board);
+        return {
+          ...state,
+          heldValue: currentPiece.value,
+          holdUsed: true,
+          currentPiece: { value: nextPieceValue, col: spawnCol, row: 0 },
+          nextPieceValue: newNext,
+        };
+      } else {
+        // Swap current with held
+        return {
+          ...state,
+          heldValue: currentPiece.value,
+          holdUsed: true,
+          currentPiece: { value: heldValue, col: spawnCol, row: 0 },
+        };
+      }
+    }
+
     case 'FORCE_GAMEOVER': {
       return { ...state, gameOver: true };
     }
@@ -326,6 +353,7 @@ function lockPiece(state) {
       mergeStreak: 0,
       streakMilestone: newStreakMilestone,
       lastChainCount: chainCount,
+      holdUsed: false,
     };
   }
 
@@ -344,5 +372,6 @@ function lockPiece(state) {
     mergeStreak: newStreak,
     streakMilestone: newStreakMilestone,
     lastChainCount: chainCount,
+    holdUsed: false,
   };
 }

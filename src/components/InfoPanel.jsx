@@ -18,6 +18,9 @@ export default function InfoPanel({ state, mode = 'single', pendingGarbage = 0 }
     progressPct = Math.min(1, Math.max(0, (score - currentThreshold) / (nextT - currentThreshold)));
   }
 
+  const heldColor = state.heldValue ? getTileColor(state.heldValue) : null;
+  const holdUsed = state.holdUsed ?? false;
+
   return (
     <div className="info-panel">
       {/* Score */}
@@ -43,6 +46,20 @@ export default function InfoPanel({ state, mode = 'single', pendingGarbage = 0 }
           <span className="score-bar-label">{formatScore(nextThreshold)}</span>
         </div>
       )}
+
+      {/* Hold slot */}
+      <div className="next-preview">
+        <span className="info-label">Hold</span>
+        <div
+          className="next-tile"
+          style={{
+            backgroundColor: heldColor ? heldColor.bg : 'transparent',
+            border: heldColor ? 'none' : '1.5px dashed var(--border)',
+            opacity: holdUsed ? 0.4 : 1,
+            transition: 'opacity 0.15s ease',
+          }}
+        />
+      </div>
 
       {/* Next piece */}
       <div className="next-preview">

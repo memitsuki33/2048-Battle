@@ -28,6 +28,7 @@ export default function BattleGame({ level, onBack }) {
   const p1 = useGameEngine({ startLevel: level, mode: 'battle' });
   const p2 = useGameEngine({ startLevel: level, mode: 'battle' });
 
+
   const p1GarbageProcessed = useRef(0);
   const p2GarbageProcessed = useRef(0);
 
@@ -105,20 +106,22 @@ export default function BattleGame({ level, onBack }) {
       }
 
       if (!gameEnded) {
-        // Player 1: WASD
+        // Player 1: WASD + R = hold
         switch (key) {
           case 'a': case 'A': playMove(); p1.moveLeft(); break;
           case 'd': case 'D': playMove(); p1.moveRight(); break;
           case 's': case 'S': p1.softDrop(); break;
           case 'w': case 'W': playHardDrop(); p1.hardDrop(); break;
+          case 'r': case 'R': p1.hold(); break;
         }
-        // Player 2: Arrow keys
+        // Player 2: Arrow keys + / = hold
         switch (key) {
           case 'ArrowLeft':  playMove(); p2.moveLeft(); break;
           case 'ArrowRight': playMove(); p2.moveRight(); break;
           case 'ArrowDown':  p2.softDrop(); break;
           case 'ArrowUp':    playHardDrop(); p2.hardDrop(); break;
           case ' ':          playHardDrop(); p2.hardDrop(); break;
+          case '/':          p2.hold(); break;
         }
       }
     },
@@ -168,7 +171,7 @@ export default function BattleGame({ level, onBack }) {
       <div className="battle-wrapper">
         {/* Player 1 */}
         <div className="player-section p1-section">
-          <span className="player-label p1">Player 1 — A D S W</span>
+          <span className="player-label p1">Player 1 — A D S W  |  R = Hold</span>
           <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
             <InfoPanel
               state={p1.state}
@@ -185,7 +188,7 @@ export default function BattleGame({ level, onBack }) {
 
         {/* Player 2 */}
         <div className="player-section p2-section">
-          <span className="player-label p2">Player 2 — Arrows / Space</span>
+          <span className="player-label p2">/ = Hold  |  Player 2 — Arrows / Space</span>
           <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
             <GameBoard state={p2.state} animSpeed="normal" />
             <InfoPanel

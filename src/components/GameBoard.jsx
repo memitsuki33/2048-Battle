@@ -122,8 +122,8 @@ export default function GameBoard({ state, animSpeed = 'normal' }) {
               bg = color.bg;
               textColor = color.text;
             } else if (type === 'ghost') {
-              bg = 'rgba(255,255,255,0.07)';
-              textColor = 'rgba(255,255,255,0.2)';
+              // Tint ghost with the piece's own color at very low opacity
+              bg = color.bg + '15';
             } else if (type === 'garbage') {
               bg = '#555';
               textColor = 'transparent';
@@ -136,7 +136,7 @@ export default function GameBoard({ state, animSpeed = 'normal' }) {
               transform: type === 'piece' ? 'scale(1.04)' : undefined,
               zIndex: type === 'piece' ? 2 : undefined,
               boxShadow: type === 'piece' ? '0 2px 12px rgba(0,0,0,0.5)' : undefined,
-              border: type === 'ghost' ? '1.5px dashed rgba(255,255,255,0.15)' : undefined,
+              border: type === 'ghost' ? `1.5px dashed ${color.bg}55` : undefined,
               animation: isPopping
                 ? `mergePopAnim ${mergeMs}ms ease`
                 : undefined,

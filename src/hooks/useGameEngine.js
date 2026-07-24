@@ -80,6 +80,7 @@ export function useGameEngine({ startLevel, mode = 'single' }) {
   const moveRight      = useCallback(() => dispatch({ type: 'MOVE_RIGHT' }), []);
   const softDrop       = useCallback(() => dispatch({ type: 'SOFT_DROP' }), []);
   const hardDrop       = useCallback(() => dispatch({ type: 'HARD_DROP' }), []);
+  const hold           = useCallback(() => dispatch({ type: 'HOLD' }), []);
   const restart        = useCallback((level) => dispatch({ type: 'RESTART', level: level ?? startLevel }), [startLevel]);
   const addIncomingGarbage = useCallback((rows) => dispatch({ type: 'ADD_INCOMING_GARBAGE', rows }), []);
   const forceGameOver  = useCallback(() => dispatch({ type: 'FORCE_GAMEOVER' }), []);
@@ -90,6 +91,7 @@ export function useGameEngine({ startLevel, mode = 'single' }) {
     moveRight,
     softDrop,
     hardDrop,
+    hold,
     restart,
     addIncomingGarbage,
     forceGameOver,
