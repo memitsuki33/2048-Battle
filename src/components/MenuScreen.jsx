@@ -11,9 +11,9 @@ export default function MenuScreen({
   return (
     <div className="menu">
       <div className="menu-title">
-        <span>2048</span> Battle
+        <span>Blend</span>it
       </div>
-      <div className="menu-subtitle">Merge — Combo — Dominate</div>
+      <div className="menu-subtitle">Mix the colors to attack!</div>
       <div className="menu-buttons">
         <button className="btn btn-primary" onMouseEnter={playHover} onClick={() => { playClick(); onSinglePlayerPC(); }}>
           Single Player (PC)

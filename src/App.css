@@ -9,9 +9,9 @@
    * Height budget: back-row (~36px) + player-label (~18px) + gaps (~20px)
    *   + board internal overhead (19×3 gap + 2×3 pad + 2×2 border = 67px) ≈ 141px → 150px.
    * Width budget: 2 info panels (~220px) + VS (~60px) + board h-overhead + gaps ≈ 320px.
-   * Dividing by 14 (2 boards × 7 cols) for width, 20 rows for height.
+   * Dividing by 20 (2 boards × 10 cols) for width, 20 rows for height.
    */
-  --cell-size: min(44px, calc((100svh - 150px) / 20), calc((100svw - 320px) / 14));
+  --cell-size: min(44px, calc((100svh - 150px) / 20), calc((100svw - 320px) / 20));
   --board-gap: 3px;
 
   /* Color palette */
@@ -258,7 +258,7 @@ body {
 
 .board-grid {
   display: grid;
-  grid-template-columns: repeat(7, var(--cell-size));
+  grid-template-columns: repeat(10, var(--cell-size));
   grid-template-rows: repeat(20, var(--cell-size));
   gap: var(--board-gap);
   background: #070d1a;
@@ -894,7 +894,7 @@ kbd {
    *
    * Width: board h-overhead = 6×3 + 2×3 + 2×2 = 28px + 8px padding = 36px
    */
-  --cell-size: min(52px, calc((100svh - 192px) / 20), calc((100svw - 36px) / 7));
+  --cell-size: min(52px, calc((100svh - 192px) / 20), calc((100svw - 36px) / 10));
 }
 
 .mobile-game-area {

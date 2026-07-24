@@ -1,18 +1,18 @@
-export const COLS = 7;
+export const COLS = 10;
 export const ROWS = 20;
-export const SPAWN_COL = 3; // center
+export const SPAWN_COL = 5; // center
 
-// All powers of 2 the game uses
-export const ALL_VALUES = [
-  2, 4, 8, 16, 32, 64, 128, 256, 512, 1024,
-  2048, 4096, 8192, 16384, 32768, 65536, 131072,
-];
+// Number of colors in the cycle: Red-Orange-Yellow-Green-Blue-Indigo-Violet
+export const COLOR_COUNT = 7;
+
+// Color names for display (index 1-7)
+export const COLOR_NAMES = ['', 'Red', 'Orange', 'Yellow', 'Green', 'Blue', 'Indigo', 'Violet'];
+export const COLOR_LETTERS = ['', 'R', 'O', 'Y', 'G', 'B', 'I', 'V'];
 
 // Score thresholds for single-player level ups
 // threshold[n] = cumulative score needed to reach level n
 export function levelThreshold(n) {
   if (n === 0) return 0;
-  // Each level needs 300 * 2^(n-1) more points than previous
   let total = 0;
   for (let i = 1; i <= n; i++) {
     total += 300 * Math.pow(2, i - 1);
@@ -26,4 +26,4 @@ export function getDropInterval(level) {
   return Math.max(20, 1200 - (level - 1) * 20);
 }
 
-export const MAX_LEVEL = 60; // level 60 → 1200 - 59*20 = 20ms (0.02s minimum)
+export const MAX_LEVEL = 60;

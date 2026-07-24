@@ -1,4 +1,4 @@
-import { ROWS, COLS, ALL_VALUES } from './constants.js';
+import { ROWS, COLS, COLOR_COUNT } from './constants.js';
 
 export function emptyBoard() {
   return Array(ROWS).fill(null).map(() => Array(COLS).fill(0));
@@ -54,24 +54,26 @@ function bfsGroup(board, startRow, startCol, visited) {
   return group;
 }
 
+// Merge N tiles of color C → color ((C - 1 + N - 1) % COLOR_COUNT) + 1
+// Example: 2 Reds (1) → Orange (2), 3 Reds → Yellow (3), cycles back after Violet
+function mergedColor(baseColor, groupSize) {
+  return ((baseColor - 1 + groupSize - 1) % COLOR_COUNT) + 1;
+}
+
+// Score for a merge result: exponential by resulting color
+function mergeScore(resultColor) {
+  return Math.pow(2, resultColor - 1) * 100;
+}
+
 // Process all merges (with cascades). Returns { board, score, chainCount }.
-//
-// placedRow/placedCol: position of the tile just locked onto the board.
-// - If the placed tile is part of a group, the merge result lands at the placed
-//   position (so dropping left-of-a-match keeps the result on the left, etc.).
-// - For cascade merges (subsequent iterations), the result lands at whichever
-//   cell in the group was NOT itself a result of a previous merge — i.e. at the
-//   pre-existing tile, not the freshly merged one.
 export function processMerges(board, placedRow = -1, placedCol = -1) {
   let current = board.map(r => [...r]);
   let totalScore = 0;
   let chainCount = 0;
   let anyMerge = true;
 
-  // Tracks cells that are merge results so cascades prefer the OTHER tile.
   const resultCells = new Set();
 
-  // Mutable copy so we can clear after first use.
   let pRow = placedRow;
   let pCol = placedCol;
 
@@ -101,10 +103,9 @@ export function processMerges(board, placedRow = -1, placedCol = -1) {
 
     for (const group of groups) {
       const value = current[group[0][0]][group[0][1]];
-      const newValue = value * Math.pow(2, group.length - 1);
+      const newValue = mergedColor(value, group.length);
 
-      // If the gap tile (a positive value inside a garbage row) is part of this
-      // group, erase all -1 cells in that row immediately — the row is gone.
+      // If gap tile in a garbage row is part of this group, erase the garbage row
       for (const [gr] of group) {
         if (next[gr].some(v => v === -1)) {
           for (let col = 0; col < COLS; col++) {
@@ -113,24 +114,19 @@ export function processMerges(board, placedRow = -1, placedCol = -1) {
         }
       }
 
-      // ── Target cell selection ──────────────────────────────────────────────
-      // Priority 1 (first merge only): placed cell → result lands where you dropped
-      // Priority 2 (cascades): prefer cells that are NOT a previous merge result
-      // Priority 3 (fallback): bottommost row, then leftmost column
+      // Target cell selection
       let targetCell = null;
 
       if (pRow >= 0 && pCol >= 0) {
         const inGroup = group.find(([r, c]) => r === pRow && c === pCol);
         if (inGroup) {
           targetCell = inGroup;
-          // Clear so this priority only applies once.
           pRow = -1;
           pCol = -1;
         }
       }
 
       if (!targetCell) {
-        // Prefer cells that were not results of a previous cascade step.
         const preferred = group.filter(([r, c]) => !resultCells.has(r * COLS + c));
         const candidates = preferred.length > 0 ? preferred : group;
 
@@ -138,14 +134,13 @@ export function processMerges(board, placedRow = -1, placedCol = -1) {
         for (const [r] of candidates) if (r > maxRow) maxRow = r;
         const bottom = candidates.filter(([r]) => r === maxRow);
         bottom.sort((a, b) => a[1] - b[1]);
-        targetCell = bottom[0]; // leftmost among bottommost
+        targetCell = bottom[0];
       }
 
-      // Clear all cells in group, then place merged tile.
       for (const [gr, gc] of group) next[gr][gc] = 0;
       next[targetCell[0]][targetCell[1]] = newValue;
       resultCells.add(targetCell[0] * COLS + targetCell[1]);
-      totalScore += newValue;
+      totalScore += mergeScore(newValue);
     }
 
     current = applyGravity(next);
@@ -154,88 +149,30 @@ export function processMerges(board, placedRow = -1, placedCol = -1) {
   return { board: current, score: totalScore, chainCount };
 }
 
-// Returns a value to use for the next piece, based on current board state.
-//
-// Candidates: all distinct positive tile values currently on the board,
-// EXCLUDING the board's current maximum (the highest tile in play).
-//
-// Probability is weighted so lower-value tiles appear more often:
-//   pool sorted ascending → index 0 (smallest) gets weight 2^(n-1),
-//   index 1 gets 2^(n-2), …, index n-1 (largest) gets 2^0 = 1.
-// This gives a geometric decay — each tier is half as likely as the one below.
-//
-// Edge cases:
-//   - Empty board → return 2.
-//   - Only one distinct value on board → return that value ÷ 2 (min 2).
-export function getNextPieceValue(board) {
-  const seen = new Set();
-  let maxVal = 0;
-
-  for (let r = 0; r < ROWS; r++) {
-    for (let c = 0; c < COLS; c++) {
-      const v = board[r][c];
-      if (v > 0) {
-        seen.add(v);
-        if (v > maxVal) maxVal = v;
-      }
-    }
-  }
-
-  // Empty board
-  if (maxVal === 0) return 2;
-
-  // Remove the highest tile
-  seen.delete(maxVal);
-
-  // Only one distinct value was present
-  if (seen.size === 0) return Math.max(2, maxVal / 2);
-
-  // Weighted pick: sort ascending, assign geometric weights (lower = heavier)
-  const pool = Array.from(seen).sort((a, b) => a - b);
-  const n = pool.length;
-  // weight[i] = 2^(n-1-i): smallest tile gets highest weight
-  const weights = pool.map((_, i) => Math.pow(2, n - 1 - i));
-  const total = weights.reduce((s, w) => s + w, 0);
-  let rand = Math.random() * total;
-  for (let i = 0; i < pool.length; i++) {
-    rand -= weights[i];
-    if (rand <= 0) return pool[i];
-  }
-  return pool[pool.length - 1]; // fallback
+// Next piece: all 7 colors have equal chance
+export function getNextPieceValue(_board) {
+  return Math.ceil(Math.random() * COLOR_COUNT);
 }
 
-// Returns the pool of values to use for garbage gap tiles.
-export function getGarbagePool(board) {
-  let maxVal = 0;
-  for (let r = 0; r < ROWS; r++) {
-    for (let c = 0; c < COLS; c++) {
-      if (board[r][c] > maxVal) maxVal = board[r][c];
-    }
-  }
-  if (maxVal === 0) return [2, 4];
-  const eligible = ALL_VALUES.filter(v => v <= maxVal);
-  return eligible.slice(-5);
+// Garbage gap tiles: any of the 7 colors
+export function getGarbagePool(_board) {
+  return [1, 2, 3, 4, 5, 6, 7];
 }
 
 // Add garbage rows at bottom (shifts board up). Returns { board, gameOver }.
-// Garbage cells are -1 (gray, non-mergeable).
-// The gap gets a random playable tile value — when it merges, the row clears.
 export function addGarbageRows(board, count, garbagePool) {
-  const pool = garbagePool && garbagePool.length > 0 ? garbagePool : [2, 4];
+  const pool = garbagePool && garbagePool.length > 0 ? garbagePool : [1, 2, 3];
   const newBoard = board.map(r => [...r]);
 
   for (let i = 0; i < count; i++) {
-    // If top row has tiles, game over
     if (newBoard[0].some(v => v !== 0)) {
       return { board: newBoard, gameOver: true };
     }
 
-    // Shift all rows up
     for (let r = 0; r < ROWS - 1; r++) {
       newBoard[r] = [...newBoard[r + 1]];
     }
 
-    // Garbage row: -1 cells with one gap that has a random tile value
     const gapCol = Math.floor(Math.random() * COLS);
     const gapValue = pool[Math.floor(Math.random() * pool.length)];
     newBoard[ROWS - 1] = Array.from({ length: COLS }, (_, c) =>
@@ -264,10 +201,10 @@ export function createInitialState(startLevel) {
     lockFlash: false,
     mergeFlash: 0,
     pendingIncoming: 0,
-    pendingIncomingPool: [2],
-    mergeStreak: 0,       // consecutive piece placements that produced a merge
-    streakMilestone: 0,   // bumped each time streak hits a multiple of 4 (for flash)
-    lastChainCount: 0,    // chain-merge count from the most recent piece lock (for combo sounds)
+    pendingIncomingPool: [1, 2, 3],
+    mergeStreak: 0,
+    streakMilestone: 0,
+    lastChainCount: 0,
   };
 }
 
@@ -346,40 +283,30 @@ function lockPiece(state) {
     mergeStreak = 0, streakMilestone = 0,
   } = state;
 
-  // Place piece on board
   const newBoard = board.map(r => [...r]);
   if (currentPiece.row >= 0) {
     newBoard[currentPiece.row][currentPiece.col] = currentPiece.value;
   }
 
-  // Process merges + cascades (pass placed position for directional merge)
-  const { board: mergedBoard, score: mergeScore, chainCount } = processMerges(newBoard, currentPiece.row, currentPiece.col);
+  const { board: mergedBoard, score: mergeScoreVal, chainCount } = processMerges(newBoard, currentPiece.row, currentPiece.col);
 
-  // Consecutive-merge streak: increments when this piece caused a merge, resets otherwise
-  const newStreak = mergeScore > 0 ? mergeStreak + 1 : 0;
-  // Every 4 consecutive merging placements = +1 garbage
+  const newStreak = mergeScoreVal > 0 ? mergeStreak + 1 : 0;
   const streakBonus = (newStreak > 0 && newStreak % 3 === 0) ? 1 : 0;
   const newStreakMilestone = streakMilestone + (streakBonus > 0 ? 1 : 0);
 
-  // Garbage: 1 row per 3 chain-combos + streak bonus
   const garbageToSend = Math.floor(chainCount / 3) + streakBonus;
   const newTotalGarbage = totalGarbageSent + garbageToSend;
-  const newScore = score + mergeScore;
+  const newScore = score + mergeScoreVal;
 
-  // Apply queued incoming garbage
   let finalBoard = mergedBoard;
   let garbageKill = false;
   if (pendingIncoming > 0) {
-    // Use pool based on recipient's current board state
-    const pool = getGarbagePool(mergedBoard).length > 0
-      ? getGarbagePool(mergedBoard)
-      : (pendingIncomingPool ?? [2, 4]);
+    const pool = getGarbagePool(mergedBoard);
     const result = addGarbageRows(mergedBoard, pendingIncoming, pool);
     finalBoard = result.board;
     if (result.gameOver) garbageKill = true;
   }
 
-  // Spawn next piece
   const spawnCol = Math.floor(COLS / 2);
   const newPieceValue = state.nextPieceValue;
   const nextPieceValue = getNextPieceValue(finalBoard);
@@ -394,8 +321,8 @@ function lockPiece(state) {
       score: newScore,
       totalGarbageSent: newTotalGarbage,
       pendingIncoming: 0,
-      pendingIncomingPool: [2],
-      mergeFlash: mergeScore > 0 ? (state.mergeFlash + 1) : state.mergeFlash,
+      pendingIncomingPool: [1, 2, 3],
+      mergeFlash: mergeScoreVal > 0 ? (state.mergeFlash + 1) : state.mergeFlash,
       mergeStreak: 0,
       streakMilestone: newStreakMilestone,
       lastChainCount: chainCount,
@@ -412,8 +339,8 @@ function lockPiece(state) {
     startLevel,
     totalGarbageSent: newTotalGarbage,
     pendingIncoming: 0,
-    pendingIncomingPool: [2],
-    mergeFlash: mergeScore > 0 ? (state.mergeFlash + 1) : state.mergeFlash,
+    pendingIncomingPool: [1, 2, 3],
+    mergeFlash: mergeScoreVal > 0 ? (state.mergeFlash + 1) : state.mergeFlash,
     mergeStreak: newStreak,
     streakMilestone: newStreakMilestone,
     lastChainCount: chainCount,
