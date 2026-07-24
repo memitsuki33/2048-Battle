@@ -2,7 +2,7 @@ import React, { useEffect, useCallback, useState } from 'react';
 import { useGameEngine } from '../hooks/useGameEngine.js';
 import GameBoard from './GameBoard.jsx';
 import InfoPanel from './InfoPanel.jsx';
-import SettingsModal from './SettingsModal.jsx';
+import ColorSequenceModal from './ColorSequenceModal.jsx';
 import { playMove, playHardDrop } from '../utils/soundEffects.js';
 
 function isMobile() {
@@ -32,17 +32,14 @@ export default function SinglePlayerGame({ onBack, animSpeed = 'normal', onAnimS
     mode: 'single',
   });
 
-  const [showSettings, setShowSettings] = useState(false);
-
-  // Checkpoint: nearest multiple of 5 (floor), min 5
-  const checkpointLevel = Math.floor(state.level / 5) * 5;
+  const [showColorGuide, setShowColorGuide] = useState(true);
 
   const handleKey = useCallback(
     (e) => {
       if (['ArrowLeft', 'ArrowRight', 'ArrowDown', 'ArrowUp', ' '].includes(e.key)) {
         e.preventDefault();
       }
-      if (state.gameOver) return;
+      if (showColorGuide || state.gameOver) return;
       switch (e.key) {
         case 'ArrowLeft':
         case 'a': case 'A':
@@ -60,7 +57,7 @@ export default function SinglePlayerGame({ onBack, animSpeed = 'normal', onAnimS
           playHardDrop(); hardDrop(); break;
       }
     },
-    [state.gameOver, moveLeft, moveRight, softDrop, hardDrop]
+    [showColorGuide, state.gameOver, moveLeft, moveRight, softDrop, hardDrop]
   );
 
   useEffect(() => {
@@ -68,9 +65,14 @@ export default function SinglePlayerGame({ onBack, animSpeed = 'normal', onAnimS
     return () => window.removeEventListener('keydown', handleKey);
   }, [handleKey]);
 
+  // Show color guide again on restart
+  const handleRestart = useCallback((level) => {
+    restart(level ?? 0);
+    setShowColorGuide(true);
+  }, [restart]);
+
   return (
     <>
-      {/* Back — fixed top-left */}
       <button
         className="btn btn-ghost btn-sm"
         style={{ position: 'fixed', top: 12, left: 12, zIndex: 50 }}
@@ -79,31 +81,15 @@ export default function SinglePlayerGame({ onBack, animSpeed = 'normal', onAnimS
         Back
       </button>
 
-      {/* Settings — fixed top-right */}
-      <button
-        className="btn btn-ghost btn-sm"
-        style={{ position: 'fixed', top: 12, right: 12, zIndex: 50 }}
-        onClick={() => setShowSettings(true)}
-      >
-        Settings
-      </button>
-
       <div className="game-wrapper">
         <div className="player-section">
           <GameBoard state={state} animSpeed={animSpeed} />
         </div>
-        <InfoPanel state={state} mode="single" />
+        <InfoPanel state={state} mode="single" onRestart={() => handleRestart(0)} />
       </div>
 
-      {showSettings && (
-        <SettingsModal
-          onClose={() => setShowSettings(false)}
-          animSpeed={animSpeed}
-          onAnimSpeed={onAnimSpeed}
-          onReset={() => restart(0)}
-          checkpointLevel={checkpointLevel}
-          onLoadLevel={(lv) => restart(lv)}
-        />
+      {showColorGuide && (
+        <ColorSequenceModal onClose={() => setShowColorGuide(false)} actionLabel="Play!" />
       )}
     </>
   );

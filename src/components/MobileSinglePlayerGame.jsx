@@ -2,30 +2,33 @@ import React, { useState } from 'react';
 import { useGameEngine } from '../hooks/useGameEngine.js';
 import GameBoard from './GameBoard.jsx';
 import DPad from './DPad.jsx';
-import SettingsModal from './SettingsModal.jsx';
-import { getTileColor, formatValue, formatScore } from '../utils/colors.js';
+import ColorSequenceModal from './ColorSequenceModal.jsx';
+import { getTileColor, formatScore } from '../utils/colors.js';
 
-export default function MobileSinglePlayerGame({ onBack, animSpeed = 'normal', onAnimSpeed }) {
+export default function MobileSinglePlayerGame({ onBack, animSpeed = 'normal' }) {
   const { state, moveLeft, moveRight, softDrop, hardDrop, restart } = useGameEngine({
     startLevel: 0,
     mode: 'single',
   });
 
-  const [showSettings, setShowSettings] = useState(false);
+  const [showColorGuide, setShowColorGuide] = useState(true);
 
-  // Nearest multiple of 5, rounded down
-  const checkpointLevel = Math.floor(state.level / 5) * 5;
   const nextColor = getTileColor(state.nextPieceValue);
+
+  const handleRestart = () => {
+    restart(0);
+    setShowColorGuide(true);
+  };
 
   return (
     <div className="mobile-battle">
 
-      {/* Board — fills all available vertical space */}
+      {/* Board */}
       <div className="mobile-game-area mobile-game-area-full">
         <GameBoard state={state} animSpeed={animSpeed} />
       </div>
 
-      {/* Info row: back + score + level + next + settings */}
+      {/* Info row: back + score + level + next */}
       <div className="mobile-bottom-info">
         <button className="btn btn-ghost btn-sm" onClick={onBack}>Back</button>
         <div className="mobile-info-strip">
@@ -40,37 +43,31 @@ export default function MobileSinglePlayerGame({ onBack, animSpeed = 'normal', o
           <div className="mobile-info-item">
             <div
               className="mobile-next-mini"
-              style={{ backgroundColor: nextColor.bg, color: nextColor.text }}
-            >
-              {formatValue(state.nextPieceValue)}
-            </div>
+              style={{ backgroundColor: nextColor.bg }}
+            />
             <span className="mobile-info-lbl">NEXT</span>
           </div>
         </div>
-        <button className="btn btn-ghost btn-sm" onClick={() => setShowSettings(true)}>
-          Settings
-        </button>
       </div>
 
-      {/* Controls row — DPad always visible; game-over handled via Settings */}
+      {/* Controls row */}
       <div className="mobile-controls-row">
-        <DPad
-          onLeft={moveLeft}
-          onRight={moveRight}
-          onSoftDrop={softDrop}
-          onHardDrop={hardDrop}
-        />
+        {state.gameOver ? (
+          <button className="btn btn-primary mobile-restart-btn" onClick={handleRestart}>
+            Restart
+          </button>
+        ) : (
+          <DPad
+            onLeft={moveLeft}
+            onRight={moveRight}
+            onSoftDrop={softDrop}
+            onHardDrop={hardDrop}
+          />
+        )}
       </div>
 
-      {showSettings && (
-        <SettingsModal
-          onClose={() => setShowSettings(false)}
-          animSpeed={animSpeed}
-          onAnimSpeed={onAnimSpeed}
-          onReset={() => restart(0)}
-          checkpointLevel={checkpointLevel}
-          onLoadLevel={(lv) => restart(lv)}
-        />
+      {showColorGuide && (
+        <ColorSequenceModal onClose={() => setShowColorGuide(false)} actionLabel="Play!" />
       )}
     </div>
   );

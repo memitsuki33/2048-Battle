@@ -49,10 +49,8 @@ export default function InfoPanel({ state, mode = 'single', pendingGarbage = 0 }
         <span className="info-label">Next</span>
         <div
           className="next-tile"
-          style={{ backgroundColor: color.bg, color: color.text }}
-        >
-          {formatValue(nextPieceValue)}
-        </div>
+          style={{ backgroundColor: color.bg }}
+        />
       </div>
 
       {/* Pending garbage (battle mode) */}

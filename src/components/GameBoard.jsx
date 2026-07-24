@@ -147,13 +147,7 @@ export default function GameBoard({ state, animSpeed = 'normal' }) {
                 key={cellKey}
                 className="cell"
                 style={cellStyle}
-              >
-                {(type !== 'empty' && type !== 'garbage') && (
-                  <span className={`cell-value${isLong ? ' long' : ''}`}>
-                    {label}
-                  </span>
-                )}
-              </div>
+              />
             );
           })
         )}

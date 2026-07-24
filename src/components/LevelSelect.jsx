@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { getDropInterval, MAX_LEVEL } from '../utils/constants.js';
+import ColorSequenceModal from './ColorSequenceModal.jsx';
 
 function LevelStepper({ value, onChange }) {
   const interval = getDropInterval(value);
   const speedLabel =
-    value === 0 ? 'No auto-drop' : `Drop every ${(interval / 1000).toFixed(2)}s`; // 1.20s → 0.02s
+    value === 0 ? 'No auto-drop' : `Drop every ${(interval / 1000).toFixed(2)}s`;
 
   return (
     <div className="level-player-col">
@@ -30,6 +31,7 @@ function LevelStepper({ value, onChange }) {
 
 export default function LevelSelect({ mode, onStart, onBack }) {
   const [level, setLevel] = useState(0);
+  const [showColors, setShowColors] = useState(false);
 
   return (
     <div className="level-select-screen">
@@ -57,6 +59,11 @@ export default function LevelSelect({ mode, onStart, onBack }) {
         )}
       </div>
 
+      {/* Color cycle reference — sits above Start Game */}
+      <button className="btn btn-ghost" onClick={() => setShowColors(true)}>
+        Color Cycle Guide
+      </button>
+
       <button
         className="btn btn-primary"
         onClick={() =>
@@ -78,6 +85,10 @@ export default function LevelSelect({ mode, onStart, onBack }) {
         <div className="controls-hint" style={{ lineHeight: 1.9 }}>
           <strong>Controls:</strong> Left / Right (or A/D) = move &nbsp; Down/S = soft drop &nbsp; Up/W/Space = hard drop
         </div>
+      )}
+
+      {showColors && (
+        <ColorSequenceModal onClose={() => setShowColors(false)} actionLabel="Got it!" />
       )}
     </div>
   );
